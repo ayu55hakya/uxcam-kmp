@@ -1,0 +1,6 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="uxcam">
+    <output-path>$PROJECT_DIR$/uxcam/build/libs</output-path>
+    <root id="archive" name="uxcam.jar" />
+  </artifact>
+</component>
