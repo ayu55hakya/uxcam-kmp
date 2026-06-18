@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="uxcam-0.0.1">
-    <output-path>$PROJECT_DIR$/uxcam/build/libs</output-path>
-    <root id="archive" name="uxcam-0.0.1.jar">
-      <element id="module-output" name="uxcam-kmp.uxcam.androidMain" />
-    </root>
-  </artifact>
-</component>
