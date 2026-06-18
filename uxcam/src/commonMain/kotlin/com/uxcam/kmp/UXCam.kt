@@ -48,5 +48,26 @@ expect object UXCam {
     /** Remove the full-screen occlusion previously applied via apply*Occlusion. */
     fun removeOcclusion()
 
+    // --- Session controls ---
+
+    /**
+     * Allow the user to briefly leave the app (e.g. to another app) without ending the
+     * session. When [continueSession] is true the recording resumes on return instead of
+     * starting a new session.
+     */
+    fun allowShortBreakForAnotherApp(continueSession: Boolean)
+
+    /** Allow a short break for [millis] milliseconds, after which the session ends if not back. */
+    fun allowShortBreakForAnotherApp(millis: Int)
+
+    /** Cancel and discard the current session without uploading it. */
+    fun cancelCurrentSession()
+
+    /** Pause screen (video) recording; events continue to be captured. */
+    fun pauseScreenRecording()
+
+    /** Resume screen recording previously paused with [pauseScreenRecording]. */
+    fun resumeScreenRecording()
+
     fun isRecording(): Boolean
 }

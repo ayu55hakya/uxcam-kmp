@@ -25,5 +25,10 @@ actual object UXCam {
     actual fun applyOverlayOcclusion(withoutGesture: Boolean): Unit = TODO(NOT_YET)
     actual fun applyBlurOcclusion(blurRadius: Int, withoutGesture: Boolean): Unit = TODO(NOT_YET)
     actual fun removeOcclusion(): Unit = TODO(NOT_YET)
+    actual fun allowShortBreakForAnotherApp(continueSession: Boolean): Unit = TODO(NOT_YET)
+    actual fun allowShortBreakForAnotherApp(millis: Int): Unit = TODO(NOT_YET)
+    actual fun cancelCurrentSession(): Unit = TODO(NOT_YET)
+    actual fun pauseScreenRecording(): Unit = TODO(NOT_YET)
+    actual fun resumeScreenRecording(): Unit = TODO(NOT_YET)
     actual fun isRecording(): Boolean = TODO(NOT_YET)
 }

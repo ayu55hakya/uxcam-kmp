@@ -74,5 +74,17 @@ actual object UXCam {
         currentOcclusion = occlusion
     }
 
+    actual fun allowShortBreakForAnotherApp(continueSession: Boolean) =
+        NativeUXCam.allowShortBreakForAnotherApp(continueSession)
+
+    actual fun allowShortBreakForAnotherApp(millis: Int) =
+        NativeUXCam.allowShortBreakForAnotherApp(millis)
+
+    actual fun cancelCurrentSession() = NativeUXCam.cancelCurrentSession()
+
+    actual fun pauseScreenRecording() = NativeUXCam.pauseScreenRecording()
+
+    actual fun resumeScreenRecording() = NativeUXCam.resumeScreenRecording()
+
     actual fun isRecording(): Boolean = NativeUXCam.isRecording()
 }
