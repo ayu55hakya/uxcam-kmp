@@ -16,8 +16,11 @@ actual object UXCam {
     actual fun startWithConfiguration(config: UXConfig): Unit = TODO(NOT_YET)
     actual fun stopSessionAndUploadData(): Unit = TODO(NOT_YET)
     actual fun logEvent(eventName: String): Unit = TODO(NOT_YET)
+    actual fun logEvent(eventName: String, properties: Map<String, Any?>?): Unit = TODO(NOT_YET)
+    actual fun logEventWithJson(eventName: String, json: String?): Unit = TODO(NOT_YET)
     actual fun tagScreenName(screenName: String): Unit = TODO(NOT_YET)
     actual fun setUserIdentity(userIdentity: String): Unit = TODO(NOT_YET)
+    actual fun setUserProperty(propertyName: String, value: String): Unit = TODO(NOT_YET)
     actual fun occludeSensitiveScreen(hide: Boolean): Unit = TODO(NOT_YET)
     actual fun isRecording(): Boolean = TODO(NOT_YET)
 }
