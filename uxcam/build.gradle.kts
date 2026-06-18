@@ -3,11 +3,13 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidMultiplatformLibrary)
+    `maven-publish`
 }
 
 // Coordinate used by consumers. Distinct from the native SDK's `com.uxcam:uxcam`
-// so the two never collide. A composite build (includeBuild) substitutes this
-// with the local project; the same coordinate works for publishToMavenLocal later.
+// so the two never collide. The Kotlin Multiplatform plugin auto-creates the
+// publications (one per target + shared metadata) from this group/version when
+// `maven-publish` is applied — `publishToMavenLocal` writes them to ~/.m2.
 group = "com.uxcam.kmp"
 version = "0.0.1"
 

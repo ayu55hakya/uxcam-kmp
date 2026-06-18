@@ -3,13 +3,14 @@ agp = "9.0.1"
 android-compileSdk = "36"
 android-minSdk = "24"
 kotlin = "2.4.0"
-# Native UXCam Android SDK (stableVersion from android-sdk/gradle.properties)
-uxcam = "3.10.3"
+# Native UXCam Android SDK — LOCAL debug build (com.uxcam:uxcam-debug) from ~/.m2.
+# For a real release, switch back to module "com.uxcam:uxcam" + a published version.
+uxcam = "3.10.4-alpha.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 # The native Android SDK this library wraps. Android-only artifact (.aar).
-uxcam-android = { module = "com.uxcam:uxcam", version.ref = "uxcam" }
+uxcam-android = { module = "com.uxcam:uxcam-debug", version.ref = "uxcam" }
 
 [plugins]
 androidMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }

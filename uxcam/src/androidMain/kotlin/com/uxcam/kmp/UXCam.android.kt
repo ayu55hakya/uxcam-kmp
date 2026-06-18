@@ -5,9 +5,6 @@ import com.uxcam.datamodel.UXConfig as NativeUXConfig
 
 actual object UXCam {
 
-    // No Context needed: the native SDK's own UXCamContentProvider captures the
-    // Application at process startup, and the context-less startWithConfiguration
-    // overload runs off it. (The Context-taking overload literally discards its arg.)
     actual fun startWithConfiguration(config: UXConfig) {
         val nativeConfig = NativeUXConfig.Builder(config.appKey)
             .enableAutomaticScreenNameTagging(config.enableAutomaticScreenNameTagging)
