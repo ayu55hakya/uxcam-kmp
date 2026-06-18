@@ -97,17 +97,20 @@ Uses a locally-built debug variant of the native SDK. The artifact id is suffixe
 
 ## Consuming from an app
 
-In the consumer project's `settings.gradle.kts` → `dependencyResolutionManagement.repositories`:
+In the consumer project's `settings.gradle.kts` → `dependencyResolutionManagement.repositories`,
+match the mode the wrapper was published with.
 
+**If the wrapper uses the published native SDK (mode A):** the wrapper comes from `~/.m2`,
+the native SDK from UXCam's repo.
 ```kotlin
-// the wrapper, from ~/.m2
-mavenLocal {
-    mavenContent { includeGroupAndSubgroups("com.uxcam.kmp") }
-}
-// native SDK: released build…
+mavenLocal { mavenContent { includeGroupAndSubgroups("com.uxcam.kmp") } }
 maven("https://sdk.uxcam.com/android/") { mavenContent { includeGroup("com.uxcam") } }
-// …OR, when the wrapper uses the local debug build (mode B), the native -debug
-// artifacts are in ~/.m2 too, so also allow:
+```
+
+**If the wrapper uses the local debug native SDK (mode B):** both the wrapper and the
+`-debug` native artifacts are in `~/.m2`. One filter covers both, because `com.uxcam.kmp`
+is a subgroup of `com.uxcam`:
+```kotlin
 mavenLocal { mavenContent { includeGroupAndSubgroups("com.uxcam") } }
 ```
 
