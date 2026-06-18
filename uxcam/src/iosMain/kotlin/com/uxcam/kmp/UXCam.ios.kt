@@ -22,5 +22,8 @@ actual object UXCam {
     actual fun setUserIdentity(userIdentity: String): Unit = TODO(NOT_YET)
     actual fun setUserProperty(propertyName: String, value: String): Unit = TODO(NOT_YET)
     actual fun occludeSensitiveScreen(hide: Boolean): Unit = TODO(NOT_YET)
+    actual fun applyOverlayOcclusion(withoutGesture: Boolean): Unit = TODO(NOT_YET)
+    actual fun applyBlurOcclusion(blurRadius: Int, withoutGesture: Boolean): Unit = TODO(NOT_YET)
+    actual fun removeOcclusion(): Unit = TODO(NOT_YET)
     actual fun isRecording(): Boolean = TODO(NOT_YET)
 }

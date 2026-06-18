@@ -31,5 +31,22 @@ expect object UXCam {
     fun setUserIdentity(userIdentity: String)
     fun setUserProperty(propertyName: String, value: String)
     fun occludeSensitiveScreen(hide: Boolean)
+
+    /**
+     * Occlude the whole screen with a solid overlay until [removeOcclusion] is called.
+     * @param withoutGesture if true, gestures are not captured while occluded.
+     */
+    fun applyOverlayOcclusion(withoutGesture: Boolean = false)
+
+    /**
+     * Occlude the whole screen with a blur until [removeOcclusion] is called.
+     * @param blurRadius blur strength (higher = blurrier).
+     * @param withoutGesture if true, gestures are not captured while occluded.
+     */
+    fun applyBlurOcclusion(blurRadius: Int = 15, withoutGesture: Boolean = false)
+
+    /** Remove the full-screen occlusion previously applied via apply*Occlusion. */
+    fun removeOcclusion()
+
     fun isRecording(): Boolean
 }

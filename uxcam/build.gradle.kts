@@ -3,6 +3,8 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidMultiplatformLibrary)
+    alias(libs.plugins.composeMultiplatform)
+    alias(libs.plugins.composeCompiler)
     `maven-publish`
 }
 
@@ -43,11 +45,18 @@ kotlin {
     }
 
     sourceSets {
+        commonMain.dependencies {
+            // Compose is needed for the occlusion Modifier API (Modifier.uxcamOcclude).
+            implementation(libs.compose.runtime)
+            implementation(libs.compose.ui)
+        }
         androidMain.dependencies {
             // The real native Android SDK — only visible to the Android target.
             // It self-initializes its context via its own UXCamContentProvider,
             // so no startup/context plumbing is needed here.
             implementation(libs.uxcam.android)
+            // Compose occlusion helper (UXCamKt.occludeSensitiveComposable).
+            implementation(libs.uxcam.ktx.android)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

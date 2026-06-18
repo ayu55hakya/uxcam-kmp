@@ -3,15 +3,22 @@ agp = "9.0.1"
 android-compileSdk = "36"
 android-minSdk = "24"
 kotlin = "2.4.0"
+composeMultiplatform = "1.11.1"
 # Native UXCam Android SDK — LOCAL debug build (com.uxcam:uxcam-debug) from ~/.m2.
 # For a real release, switch back to module "com.uxcam:uxcam" + a published version.
 uxcam = "3.10.4-alpha.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
-# The native Android SDK this library wraps. Android-only artifact (.aar).
+compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composeMultiplatform" }
+compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultiplatform" }
+# The native Android SDK this library wraps. Android-only artifacts (.aar).
 uxcam-android = { module = "com.uxcam:uxcam-debug", version.ref = "uxcam" }
+# Compose occlusion helpers (UXCamKt.occludeSensitiveComposable) live in this module.
+uxcam-ktx-android = { module = "com.uxcam:uxcam-ktx-debug", version.ref = "uxcam" }
 
 [plugins]
 androidMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
+composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
