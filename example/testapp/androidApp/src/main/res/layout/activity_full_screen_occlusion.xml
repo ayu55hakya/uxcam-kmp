@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Full-Screen Occlusion"
+            android:textSize="22sp"
+            android:paddingBottom="8dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Occludes the entire screen in the recording (the live screen is unchanged)." />
+
+        <Button android:id="@+id/applyOverlay" style="@style/Action" android:text="Apply overlay occlusion" />
+        <Button android:id="@+id/applyBlur" style="@style/Action" android:text="Apply blur occlusion" />
+
+        <TextView android:id="@+id/status" style="@style/Status" />
+
+    </LinearLayout>
+
+</ScrollView>

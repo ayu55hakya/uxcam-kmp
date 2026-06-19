@@ -10,13 +10,24 @@
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
         <activity
             android:exported="true"
-            android:name=".MainActivity">
+            android:name=".LauncherActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:exported="false"
+            android:name=".ComposeHomeActivity" />
+        <activity
+            android:exported="false"
+            android:name=".ViewHomeActivity" />
+        <activity android:exported="false" android:name=".UserApisActivity" />
+        <activity android:exported="false" android:name=".CustomEventsActivity" />
+        <activity android:exported="false" android:name=".OcclusionActivity" />
+        <activity android:exported="false" android:name=".FullScreenOcclusionActivity" />
+        <activity android:exported="false" android:name=".SessionControlsActivity" />
     </application>
 
 </manifest>
