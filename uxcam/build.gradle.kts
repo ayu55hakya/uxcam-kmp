@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.kotlinCocoapods)
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
@@ -22,15 +23,27 @@ kotlin {
         freeCompilerArgs.add("-Xexpect-actual-classes")
     }
 
-    // iOS targets are declared so the wrapper is genuinely multiplatform and ready
-    // for iOS work later. For now their actuals are stubs (see iosMain).
-    listOf(
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
+    iosArm64()
+    iosSimulatorArm64()
+
+    // The iOS actuals (iosMain/UXCam.ios.kt) bind to the native iOS UXCam SDK via the
+    // CocoaPods plugin. The `UXCam` pod is consumed from a locally-built xcframework
+    // (uxcam/localpods/UXCam, gitignored) — built from ~/Documents/ios-framework, the
+    // iOS analogue of the Android local-debug SDK. The plugin generates the cinterop
+    // binding (Kotlin package `cocoapods.UXCam`) and a `uxcam.podspec` for this module
+    // that the SwiftUI sample consumes.
+    cocoapods {
+        version = "0.0.1"
+        summary = "UXCam KMP wrapper"
+        homepage = "https://uxcam.com"
+        ios.deploymentTarget = "12.0"
+        framework {
             baseName = "UXCamKMP"
             isStatic = true
+        }
+        pod("UXCam") {
+            source = path(file("localpods/UXCam"))
+            moduleName = "UXCam"
         }
     }
 

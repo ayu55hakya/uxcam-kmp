@@ -8,16 +8,9 @@ plugins {
 }
 
 kotlin {
-    listOf(
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "Shared"
-            isStatic = true
-        }
-    }
-    
+    // Android-only sample UI. iOS uses a native SwiftUI app that talks to the :uxcam
+    // wrapper framework directly (see example/iosApp), so this module declares no iOS
+    // target — there is no shared Compose UI on iOS.
     androidLibrary {
        namespace = "com.example.testapp.shared"
        compileSdk = libs.versions.android.compileSdk.get().toInt()

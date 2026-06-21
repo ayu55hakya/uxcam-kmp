@@ -12,8 +12,8 @@ class UserApisActivity : SampleActivity() {
         UXCam.tagScreenName("User APIs")
 
         findViewById<Button>(R.id.setIdentity).setOnClickListener {
-            UXCam.setUserIdentity("user_12345")
-            report("setUserIdentity(\"user_12345\")")
+            UXCam.setUserIdentity("user_123456")
+            report("setUserIdentity(\"user_123456\")")
         }
         findViewById<Button>(R.id.propString).setOnClickListener {
             UXCam.setUserProperty("plan", "premium")

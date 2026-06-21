@@ -17,7 +17,7 @@ class LauncherActivity : Activity() {
         super.onCreate(savedInstanceState)
 
         UXCam.startWithConfiguration(
-            UXConfig(appKey = "n5ctt823s8qihkk-us", enableIntegrationLogging = true),
+            UXConfig(appKey = "app_key", enableIntegrationLogging = true),
         )
 
         UXCam.addVerificationListener(

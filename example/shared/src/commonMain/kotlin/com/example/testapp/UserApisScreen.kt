@@ -47,8 +47,8 @@ internal fun UserApisScreen(onBack: () -> Unit) {
         Button(
             modifier = Modifier.fillMaxWidth(),
             onClick = {
-                UXCam.setUserIdentity("user_12345")
-                lastCall = "setUserIdentity(\"user_12345\")"
+                UXCam.setUserIdentity("user_123456")
+                lastCall = "setUserIdentity(\"user_123456\")"
             },
         ) {
             Text("Set user identity")

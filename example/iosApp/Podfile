@@ -1,0 +1,13 @@
+platform :ios, '15.0'
+
+target 'iosApp' do
+  use_frameworks!
+
+  # The KMP wrapper framework (UXCamKMP), built from the :uxcam Gradle module via a
+  # CocoaPods script phase. Its podspec declares a dependency on the native `UXCam` pod.
+  pod 'uxcam', :path => '../../uxcam'
+
+  # The native iOS UXCam SDK, consumed from the locally-built xcframework
+  # (uxcam/localpods/UXCam — built from ~/Documents/ios-framework, gitignored).
+  pod 'UXCam', :path => '../../uxcam/localpods/UXCam'
+end

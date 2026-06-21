@@ -20,3 +20,12 @@ local.properties
 *.xcodeproj/xcuserdata/
 *.xcworkspace/xcuserdata/
 xcuserdata/
+
+# CocoaPods
+Pods/
+*.xcworkspace
+Podfile.lock
+
+# Locally-built native iOS SDK pod (machine-specific — build from ~/Documents/ios-framework).
+# Mirrors how the Android side consumes the local-debug SDK from ~/.m2.
+uxcam/localpods/
