@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Status &amp; Misc"
+            android:textSize="22sp"
+            android:paddingBottom="8dp" />
+
+        <TextView style="@style/Section" android:text="URLs &amp; version" />
+        <Button android:id="@+id/sessionUrl" style="@style/Action" android:text="URL for current session" />
+        <Button android:id="@+id/userUrl" style="@style/Action" android:text="URL for current user" />
+        <Button android:id="@+id/sdkVersion" style="@style/Action" android:text="SDK version info" />
+
+        <TextView style="@style/Section" android:text="Pending uploads" />
+        <Button android:id="@+id/pendingCount" style="@style/Action" android:text="Pending session count" />
+        <Button android:id="@+id/pendingUploads" style="@style/Action" android:text="Pending uploads (callback)" />
+        <Button android:id="@+id/deletePending" style="@style/Action" android:text="Delete pending uploads" />
+
+        <TextView style="@style/Section" android:text="Crash handling &amp; verification" />
+        <Button android:id="@+id/crashOn" style="@style/Action" android:text="Disable crash handling (true)" />
+        <Button android:id="@+id/crashOff" style="@style/Action" android:text="Disable crash handling (false)" />
+        <Button android:id="@+id/verification" style="@style/Action" android:text="Add verification listener" />
+
+        <TextView android:id="@+id/status" style="@style/Status" />
+
+    </LinearLayout>
+
+</ScrollView>

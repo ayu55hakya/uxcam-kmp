@@ -1,5 +1,9 @@
 plugins {
-    // Loaded here once, applied in the :uxcam module — avoids classloading them twice.
+    // Loaded here once, applied in the subprojects (:uxcam and :example:*) — avoids
+    // classloading them more than once across the build.
+    alias(libs.plugins.androidApplication) apply false
     alias(libs.plugins.androidMultiplatformLibrary) apply false
     alias(libs.plugins.kotlinMultiplatform) apply false
+    alias(libs.plugins.composeMultiplatform) apply false
+    alias(libs.plugins.composeCompiler) apply false
 }

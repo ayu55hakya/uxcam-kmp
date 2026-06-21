@@ -1,4 +1,5 @@
 rootProject.name = "uxcam-kmp"
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
     repositories {
@@ -38,3 +39,8 @@ dependencyResolutionManagement {
 }
 
 include(":uxcam")
+
+// Sample app demonstrating the wrapper. Depends on :uxcam as a project (projects.uxcam),
+// so no publishToMavenLocal round-trip is needed during development.
+include(":example:shared")
+include(":example:androidApp")

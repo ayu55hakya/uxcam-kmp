@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bug &amp; Exception Reporting"
+            android:textSize="22sp"
+            android:paddingBottom="8dp" />
+
+        <Button android:id="@+id/bugNoProps" style="@style/Action" android:text="Report bug (no properties)" />
+        <Button android:id="@+id/bugMap" style="@style/Action" android:text="Report bug (map properties)" />
+        <Button android:id="@+id/bugJson" style="@style/Action" android:text="Report bug (JSON properties)" />
+        <Button android:id="@+id/exception" style="@style/Action" android:text="Report exception" />
+        <Button android:id="@+id/exceptionMap" style="@style/Action" android:text="Report exception (with properties)" />
+
+        <TextView android:id="@+id/status" style="@style/Status" />
+
+    </LinearLayout>
+
+</ScrollView>

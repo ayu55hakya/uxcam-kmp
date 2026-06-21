@@ -8,16 +8,38 @@ to the native SDK directly (no MethodChannel-style bridge).
 
 ```
 uxcam-kmp/
-├── settings.gradle.kts            # repositories + included module
+├── settings.gradle.kts            # repositories + included modules
 ├── gradle/libs.versions.toml      # versions (incl. the native SDK coordinate)
-└── uxcam/                         # the library module → .aar + UXCamKMP.framework
-    └── src/
-        ├── commonMain/   UXCam.kt (expect), UXConfig.kt   # public API
-        ├── androidMain/  UXCam.android.kt                 # actual → com.uxcam.UXCam
-        └── iosMain/      UXCam.ios.kt                      # actual (stub for now)
+├── uxcam/                         # the library module → .aar + UXCamKMP.framework
+│   └── src/
+│       ├── commonMain/   UXCam.kt (expect), UXConfig.kt   # public API
+│       ├── androidMain/  UXCam.android.kt                 # actual → com.uxcam.UXCam
+│       └── iosMain/      UXCam.ios.kt                      # actual (stub for now)
+└── example/                       # sample app, part of this same Gradle build
+    ├── shared/                    # KMP UI/logic, depends on projects.uxcam
+    ├── androidApp/                # Android entry point
+    └── iosApp/                    # iOS entry point (Xcode project)
 ```
 
 Library coordinate: **`com.uxcam.kmp:uxcam:0.0.1`** (set in `uxcam/build.gradle.kts`).
+
+The sample lives in this same build and consumes the wrapper via a project dependency
+(`implementation(projects.uxcam)`), so editing the library is picked up directly — no
+`publishToMavenLocal` round-trip needed to run the sample.
+
+## Running the sample app
+
+```bash
+# Android
+./gradlew :example:androidApp:installDebug
+
+# iOS — open in Xcode and run; the build phase invokes
+#   ./gradlew :example:shared:embedAndSignAppleFrameworkForXcode
+open example/iosApp/iosApp.xcodeproj
+```
+
+The sample still needs the native UXCam Android SDK resolvable (see the modes below);
+`./gradlew publishToMavenLocal` is only required when testing an **external** consumer.
 
 ## Publishing the library
 

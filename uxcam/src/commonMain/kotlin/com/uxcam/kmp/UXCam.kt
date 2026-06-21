@@ -1,73 +1,103 @@
 package com.uxcam.kmp
 
 /**
- * Common, platform-neutral facade over the native UXCam SDKs.
+ * Common, platform-neutral facade over the native UXCam SDKs. Mirrors the developer-facing
+ * surface of the native API; each call binds to the platform `actual` at compile time
+ * (Android → com.uxcam.UXCam, iOS → UXCam.framework).
  *
- * Consumers call these from shared (commonMain) code; the compiler binds each
- * call to the platform `actual` (Android → com.uxcam.UXCam, iOS → UXCam.framework).
- * This replaces Flutter's MethodChannel + string dispatch: no serialization,
- * resolved at compile time.
- *
- * No Context is required to start: the native SDKs capture their own platform
- * context at process startup, so consumers just call `startWithConfiguration`.
+ * Cross-platform/internal hooks (Cordova/Appcelerator/Flutter, pluginType, getDelegate) are
+ * intentionally not mirrored — this wrapper is itself the cross-platform layer. Listener-based
+ * APIs are exposed as Kotlin lambdas. Per-view occlusion (android.view.View) has no common type,
+ * so it lives only on the Android actual (see UXCam.android.kt).
  */
 expect object UXCam {
+
+    // --- Lifecycle & session ---
     fun startWithConfiguration(config: UXConfig)
+    fun startNewSession()
     fun stopSessionAndUploadData()
-    fun logEvent(eventName: String)
-
-    /** Log an event with properties. A null map exercises the native no-properties path. */
-    fun logEvent(eventName: String, properties: Map<String, Any?>?)
-
-    /**
-     * Log an event whose properties are supplied as a JSON string. On Android this is
-     * parsed into an org.json.JSONObject and forwarded to the native JSONObject overload
-     * (which has no cross-platform type, hence a String here). A null string exercises
-     * the native null-JSON path; "{}" is an empty object.
-     */
-    fun logEventWithJson(eventName: String, json: String?)
-
-    fun tagScreenName(screenName: String)
-    fun setUserIdentity(userIdentity: String)
-    fun setUserProperty(propertyName: String, value: String)
-    fun occludeSensitiveScreen(hide: Boolean)
-
-    /**
-     * Occlude the whole screen with a solid overlay until [removeOcclusion] is called.
-     * @param withoutGesture if true, gestures are not captured while occluded.
-     */
-    fun applyOverlayOcclusion(withoutGesture: Boolean = false)
-
-    /**
-     * Occlude the whole screen with a blur until [removeOcclusion] is called.
-     * @param blurRadius blur strength (higher = blurrier).
-     * @param withoutGesture if true, gestures are not captured while occluded.
-     */
-    fun applyBlurOcclusion(blurRadius: Int = 15, withoutGesture: Boolean = false)
-
-    /** Remove the full-screen occlusion previously applied via apply*Occlusion. */
-    fun removeOcclusion()
-
-    // --- Session controls ---
-
-    /**
-     * Allow the user to briefly leave the app (e.g. to another app) without ending the
-     * session. When [continueSession] is true the recording resumes on return instead of
-     * starting a new session.
-     */
-    fun allowShortBreakForAnotherApp(continueSession: Boolean)
-
-    /** Allow a short break for [millis] milliseconds, after which the session ends if not back. */
-    fun allowShortBreakForAnotherApp(millis: Int)
-
-    /** Cancel and discard the current session without uploading it. */
+    fun stopSessionAndUploadData(onSessionStopped: () -> Unit)
     fun cancelCurrentSession()
 
-    /** Pause screen (video) recording; events continue to be captured. */
+    // --- Events ---
+    fun logEvent(eventName: String)
+    fun logEvent(eventName: String, properties: Map<String, Any?>?)
+    /** Properties as a JSON string (parsed to the native JSONObject overload on Android). */
+    fun logEventWithJson(eventName: String, json: String?)
+
+    // --- Bug & exception reporting ---
+    fun reportBugEvent(eventName: String)
+    fun reportBugEvent(eventName: String, properties: Map<String, Any?>?)
+    fun reportBugEventWithJson(eventName: String, json: String?)
+    fun reportExceptionEvent(throwable: Throwable)
+    fun reportExceptionEvent(throwable: Throwable, properties: Map<String, Any?>?)
+
+    // --- User identity & properties ---
+    fun setUserIdentity(userIdentity: String)
+    fun setUserProperty(propertyName: String, value: String)
+    fun setUserProperty(propertyName: String, value: Int)
+    fun setUserProperty(propertyName: String, value: Float)
+    fun setUserProperty(propertyName: String, value: Boolean)
+    fun setPushNotificationToken(token: String)
+
+    // --- Session properties ---
+    fun setSessionProperty(propertyName: String, value: String)
+    fun setSessionProperty(propertyName: String, value: Int)
+    fun setSessionProperty(propertyName: String, value: Float)
+    fun setSessionProperty(propertyName: String, value: Boolean)
+    fun markSessionAsFavorite()
+
+    // --- Screen tagging & ignore lists ---
+    fun tagScreenName(screenName: String)
+    fun setAutomaticScreenNameTagging(enable: Boolean)
+    fun setImprovedScreenCaptureEnabled(enable: Boolean)
+    fun addScreenNameToIgnore(screenName: String)
+    fun addScreenNamesToIgnore(screenNames: List<String>)
+    fun removeScreenNameToIgnore(screenName: String)
+    fun removeScreenNamesToIgnore(screenNames: List<String>)
+    fun removeAllScreenNamesToIgnore()
+    fun screenNamesBeingIgnored(): List<String>
+
+    // --- Occlusion (screen-level; per-view is Android-only) ---
+    fun occludeSensitiveScreen(hide: Boolean)
+    fun occludeSensitiveScreen(hide: Boolean, withoutGesture: Boolean)
+    fun occludeAllTextFields(occludeAll: Boolean)
+    fun applyOverlayOcclusion(withoutGesture: Boolean = false)
+    fun applyBlurOcclusion(blurRadius: Int = 15, withoutGesture: Boolean = false)
+    fun removeOcclusion()
+
+    // --- Recording control ---
     fun pauseScreenRecording()
-
-    /** Resume screen recording previously paused with [pauseScreenRecording]. */
     fun resumeScreenRecording()
-
     fun isRecording(): Boolean
+    fun allowShortBreakForAnotherApp()
+    fun allowShortBreakForAnotherApp(continueSession: Boolean)
+    fun allowShortBreakForAnotherApp(millis: Int)
+    fun resumeShortBreakForAnotherApp()
+
+    // --- Opt in / out ---
+    fun optInOverall()
+    fun optOutOverall()
+    fun optInOverallStatus(): Boolean
+    fun optIntoVideoRecording()
+    fun optOutOfVideoRecording()
+    fun optInVideoRecordingStatus(): Boolean
+
+    // --- Multi-session ---
+    fun getMultiSessionRecord(): Boolean
+    fun setMultiSessionRecord(enable: Boolean)
+
+    // --- Crash handling ---
+    fun disableCrashHandling(disabled: Boolean)
+
+    // --- Verification ---
+    fun addVerificationListener(onSuccess: () -> Unit, onFailure: (errorMessage: String) -> Unit)
+
+    // --- URLs, uploads & status ---
+    fun urlForCurrentSession(): String?
+    fun urlForCurrentUser(): String?
+    fun deletePendingUploads()
+    fun pendingSessionCount(): Int
+    fun pendingUploads(onResult: (count: Int) -> Unit)
+    fun getSdkVersionInfo(): String
 }

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Session Properties"
+            android:textSize="22sp"
+            android:paddingBottom="8dp" />
+
+        <Button android:id="@+id/propString" style="@style/Action" android:text="String property (tier = gold)" />
+        <Button android:id="@+id/propInt" style="@style/Action" android:text="Int property (cart_items = 3)" />
+        <Button android:id="@+id/propFloat" style="@style/Action" android:text="Float property (cart_total = 49.99)" />
+        <Button android:id="@+id/propBool" style="@style/Action" android:text="Boolean property (checkout_started = true)" />
+        <Button android:id="@+id/favorite" style="@style/Action" android:text="Mark session as favorite" />
+
+        <TextView style="@style/Section" android:text="Custom property" />
+        <EditText android:id="@+id/propKey" style="@style/Field" android:hint="Property key" />
+        <EditText android:id="@+id/propValue" style="@style/Field" android:hint="Property value" />
+        <Button android:id="@+id/setCustomProp" style="@style/Action" android:text="Set custom session property" />
+
+        <TextView android:id="@+id/status" style="@style/Status" />
+
+    </LinearLayout>
+
+</ScrollView>

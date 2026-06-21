@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Session Controls"
+            android:textSize="22sp"
+            android:paddingBottom="8dp" />
+
+        <TextView style="@style/Section" android:text="Lifecycle" />
+        <Button android:id="@+id/startNewSession" style="@style/Action" android:text="Start new session" />
+        <Button android:id="@+id/stopAndUpload" style="@style/Action" android:text="Stop session and upload" />
+        <Button android:id="@+id/stopWithListener" style="@style/Action" android:text="Stop and upload (with listener)" />
+        <Button android:id="@+id/cancelSession" style="@style/Action" android:text="Cancel current session" />
+
+        <TextView style="@style/Section" android:text="Recording" />
+        <Button android:id="@+id/pause" style="@style/Action" android:text="Pause screen recording" />
+        <Button android:id="@+id/resume" style="@style/Action" android:text="Resume screen recording" />
+        <Button android:id="@+id/isRecording" style="@style/Action" android:text="isRecording()" />
+
+        <TextView style="@style/Section" android:text="Short break for another app" />
+        <Button android:id="@+id/allowShortBreak" style="@style/Action" android:text="Allow short break (open image picker)" />
+        <Button android:id="@+id/allowShortBreakDefault" style="@style/Action" android:text="Allow short break (default)" />
+        <Button android:id="@+id/resumeShortBreak" style="@style/Action" android:text="Resume short break" />
+
+        <TextView style="@style/Section" android:text="Multi-session" />
+        <Button android:id="@+id/multiSessionGet" style="@style/Action" android:text="Get multi-session record" />
+        <Button android:id="@+id/multiSessionOn" style="@style/Action" android:text="Set multi-session record (on)" />
+        <Button android:id="@+id/multiSessionOff" style="@style/Action" android:text="Set multi-session record (off)" />
+
+        <TextView android:id="@+id/status" style="@style/Status" />
+
+    </LinearLayout>
+
+</ScrollView>
