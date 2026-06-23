@@ -8,6 +8,8 @@ composeMultiplatform = "1.11.1"
 material3 = "1.11.0-alpha07"
 androidx-activity = "1.13.0"
 androidx-lifecycle = "2.11.0-beta01"
+# UXCam KMP wrapper (com.uxcam.kmp:uxcam), consumed from mavenLocal.
+uxcam-kmp = "0.0.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -21,10 +23,14 @@ compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMul
 compose-uiTooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "composeMultiplatform" }
 compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
+# UXCam KMP wrapper — the single dependency the app needs; the native Android SDK
+# (com.uxcam:uxcam-debug) arrives transitively via its published POM.
+uxcam-kmp = { module = "com.uxcam.kmp:uxcam", version.ref = "uxcam-kmp" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlinCocoapods = { id = "org.jetbrains.kotlin.native.cocoapods", version.ref = "kotlin" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

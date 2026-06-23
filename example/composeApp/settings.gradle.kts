@@ -25,6 +25,17 @@ dependencyResolutionManagement {
             }
         }
         mavenCentral()
+        // The UXCam KMP wrapper (com.uxcam.kmp:uxcam) and the native debug Android SDK
+        // (com.uxcam:uxcam-debug, pulled transitively) are resolved from ~/.m2 — publish
+        // them once with `./gradlew :uxcam:publishToMavenLocal` from the repo root.
+        // includeGroupAndSubgroups("com.uxcam") covers both com.uxcam and com.uxcam.kmp.
+        mavenLocal {
+            mavenContent { includeGroupAndSubgroups("com.uxcam") }
+        }
+        // Fallback for the native UXCam Android SDK (not on Maven Central).
+        maven("https://sdk.uxcam.com/android/") {
+            mavenContent { includeGroup("com.uxcam") }
+        }
     }
 }
 

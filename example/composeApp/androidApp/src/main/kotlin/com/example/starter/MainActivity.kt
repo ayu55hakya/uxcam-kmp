@@ -11,6 +11,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        // Start UXCam from the single shared config (see UxcamSetup in commonMain).
+        UxcamSetup.start()
         setContent {
             App()
         }

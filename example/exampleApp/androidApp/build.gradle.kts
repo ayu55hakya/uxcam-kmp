@@ -14,8 +14,6 @@ kotlin {
 dependencies {
     implementation(projects.example.exampleApp.shared)
 
-    // Single runtime source of the app key, shared with the iOS app. Starts UXCam.
-    implementation(projects.example.exampleApp.uxbootstrap)
 
     // androidApp also calls UXCam directly (e.g. addVerificationListener), so it declares
     // the wrapper itself (shared hides it behind `implementation`).
