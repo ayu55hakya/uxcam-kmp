@@ -1,0 +1,14 @@
+platform :ios, '15.0'
+
+target 'iosApp' do
+  use_frameworks!
+
+  # The shared bootstrap framework (UxBootstrap), built from the :example:exampleApp:uxbootstrap
+  # Gradle module. It re-exports the :uxcam wrapper (UXCamKMP), so this single Kotlin
+  # framework provides both UxcamInitializer and the UXCam/UXConfig types.
+  pod 'uxbootstrap', :path => '../uxbootstrap'
+
+  # The native iOS UXCam SDK, consumed from the locally-built xcframework
+  # (uxcam/localpods/UXCam — built from ~/Documents/ios-framework, gitignored).
+  pod 'UXCam', :path => '../../../uxcam/localpods/UXCam'
+end
