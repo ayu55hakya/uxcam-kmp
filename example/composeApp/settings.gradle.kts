@@ -25,10 +25,9 @@ dependencyResolutionManagement {
             }
         }
         mavenCentral()
-        // The UXCam KMP wrapper (com.uxcam.kmp:uxcam) and the native debug Android SDK
-        // (com.uxcam:uxcam-debug, pulled transitively) are resolved from ~/.m2 — publish
-        // them once with `./gradlew :uxcam:publishToMavenLocal` from the repo root.
-        // includeGroupAndSubgroups("com.uxcam") covers both com.uxcam and com.uxcam.kmp.
+        // The native debug Android SDK (com.uxcam:uxcam-debug, pulled transitively by the
+        // wrapper) is resolved from ~/.m2. The wrapper itself (com.uxcam.kmp:uxcam) is NOT
+        // resolved here — it is built from source via the composite build below.
         mavenLocal {
             mavenContent { includeGroupAndSubgroups("com.uxcam") }
         }
@@ -38,6 +37,15 @@ dependencyResolutionManagement {
         }
     }
 }
+
+// Build the UXCam KMP wrapper from source instead of consuming a published artifact.
+// Gradle substitutes the `com.uxcam.kmp:uxcam` dependency (declared in shared/build.gradle.kts)
+// with the root build's `:uxcam` project automatically. This means no publishToMavenLocal /
+// cache-refresh dance during local development, and — crucially — the iOS framework always
+// links the wrapper's real iOS `actual` (no stale-artifact partial-linkage stubs that crash
+// at runtime with IrLinkageError). Only `:uxcam` and its dependencies are configured from the
+// included build; the sibling example app is not.
+includeBuild("../..")
 
 // Clean Compose Multiplatform starter — a standalone Gradle build, fully independent of
 // the main example app. Split into a KMP `shared` library + a thin Android application

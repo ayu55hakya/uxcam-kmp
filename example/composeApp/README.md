@@ -40,11 +40,12 @@ object UxcamSetup {
 
 ## Prerequisites
 
-- Publish the UXCam KMP wrapper to your local Maven once (and after any wrapper change):
-  ```bash
-  cd ../..            # repo root
-  ./gradlew :uxcam:publishToMavenLocal
-  ```
+- The UXCam KMP wrapper (`com.uxcam.kmp:uxcam`) is built **from source** via a Gradle
+  composite build (`includeBuild("../..")` in `settings.gradle.kts`) — no
+  `publishToMavenLocal` step, and the iOS framework always links the real implementation
+  (no stale-artifact crashes).
+- The native debug Android SDK (`com.uxcam:uxcam-debug`, pulled transitively) is resolved
+  from `~/.m2`; if missing, run `./gradlew :uxcam:publishDebugToMavenLocal` from the repo root.
 - iOS only: the native SDK xcframework at `uxcam/localpods/UXCam/UXCam.xcframework`
   (gitignored) and the CocoaPods CLI (`pod`).
 

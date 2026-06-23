@@ -56,6 +56,11 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
         }
+        androidMain.dependencies {
+            // For the image picker (rememberLauncherForActivityResult) in ImagePicker.android.kt,
+            // used by the Session Controls screen to background the app.
+            implementation(libs.androidx.activity.compose)
+        }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
