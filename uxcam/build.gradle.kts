@@ -15,7 +15,7 @@ plugins {
 // publications (one per target + shared metadata) from this group/version when
 // `maven-publish` is applied — `publishToMavenLocal` writes them to ~/.m2.
 group = "com.uxcam.kmp"
-version = "0.0.1"
+version = "0.0.2"
 
 kotlin {
     // `expect`/`actual` objects are stable enough to use; this flag suppresses the
@@ -33,7 +33,7 @@ kotlin {
     // binding (Kotlin package `cocoapods.UXCam`) and a `uxcam.podspec` for this module
     // that the SwiftUI sample consumes.
     cocoapods {
-        version = "0.0.1"
+        version = "0.0.2"
         summary = "UXCam KMP wrapper"
         homepage = "https://uxcam.com"
         ios.deploymentTarget = "12.0"

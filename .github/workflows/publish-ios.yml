@@ -47,9 +47,9 @@ jobs:
         with:
           fetch-depth: 0
           # persist-credentials defaults to true, so the token is configured for the git
-          # push that KMMBridge makes (the Package.swift commit + release tag).
+          # push this workflow makes (the rewritten Package.swift commit + the moved tag).
 
-      - name: Configure git identity (KMMBridge commits the updated Package.swift)
+      - name: Configure git identity (this workflow commits the rewritten Package.swift)
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -68,14 +68,35 @@ jobs:
       - name: Set up Gradle (with build cache)
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Publish XCFramework + update Package.swift
+      - name: Publish XCFramework + rewrite Package.swift (on the runner only)
         env:
           # Injected as a Gradle project property (see file header). secrets.GITHUB_TOKEN has
-          # contents:write on this repo, which covers the release + tag + commit. This works only
-          # because gitHubReleaseArtifacts targets the SAME repo Actions runs in (ayu55hakya/
-          # uxcam-kmp). If you point it at a different repo (e.g. uxcam/uxcam-kmp), swap this for a
-          # PAT secret with write access to that repo.
+          # contents:write on this repo, which covers creating the release + uploading the asset.
+          # Works only because gitHubReleaseArtifacts targets the SAME repo Actions runs in
+          # (ayu55hakya/uxcam-kmp). If you point it at a different repo, swap for a PAT secret.
           ORG_GRADLE_PROJECT_GITHUB_PUBLISH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # --no-configuration-cache: the publish/upload/git steps run in doLast and aren't
-        # configuration-cache safe, and this repo enables CC by default in gradle.properties.
+        # kmmBridgePublish builds + uploads the XCFramework to a GitHub Release (which auto-creates
+        # the tag at the CURRENT commit) and rewrites Package.swift's url/checksum — but ONLY in the
+        # runner's working tree. KMMBridge does NOT commit/push; the next step does.
+        # --no-configuration-cache: the upload runs in doLast and isn't CC-safe (CC is on by default).
         run: ./gradlew :uxcam:kmmBridgePublish -PENABLE_PUBLISHING=true --no-configuration-cache
+
+      - name: Commit the rewritten Package.swift and move the tag onto it
+        # The release auto-created the tag at the pre-rewrite commit, so SPM consumers resolving
+        # `from: <version>` would otherwise get the placeholder url. Commit the rewritten file and
+        # force the tag onto that commit. The release asset URL keys on the tag NAME (not the
+        # commit), so moving the tag keeps the binary link valid.
+        run: |
+          set -euo pipefail
+          VERSION="$(grep -E '^version[[:space:]]*=[[:space:]]*"' uxcam/build.gradle.kts | head -1 | sed -E 's/.*"([^"]+)".*/\1/')"
+          echo "Publishing version: $VERSION"
+          if git diff --quiet -- Package.swift; then
+            echo "::error::Package.swift was not rewritten — kmmBridgePublish did not update url/checksum. Aborting."
+            exit 1
+          fi
+          git add Package.swift
+          git commit -m "Release $VERSION [skip ci]"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+          git tag -f "$VERSION"
+          git push -f origin "refs/tags/$VERSION"
+          echo "Tag $VERSION now points at the commit containing the real Package.swift url/checksum."

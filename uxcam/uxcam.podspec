@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
     spec.name                     = 'uxcam'
-    spec.version                  = '0.0.1'
+    spec.version                  = '0.0.2'
     spec.homepage                 = 'https://uxcam.com'
     spec.source                   = { :http=> ''}
     spec.authors                  = ''
