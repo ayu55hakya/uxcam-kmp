@@ -2,7 +2,8 @@
 #
 # What it does on each run:
 #   1. Builds the release XCFramework for iosArm64 + iosSimulatorArm64.
-#   2. Zips it and uploads it as a GitHub Release asset on uxcam/uxcam-kmp.
+#   2. Zips it and uploads it as a GitHub Release asset on the repo configured in
+#      uxcam/build.gradle.kts (gitHubReleaseArtifacts) — currently ayu55hakya/uxcam-kmp.
 #   3. Rewrites the url/checksum in the Package.swift VARIABLES BLOCK, commits it, and tags
 #      the release so SPM consumers can resolve `.package(url: ".../uxcam-kmp", from: "<version>")`.
 #
@@ -70,8 +71,10 @@ jobs:
       - name: Publish XCFramework + update Package.swift
         env:
           # Injected as a Gradle project property (see file header). secrets.GITHUB_TOKEN has
-          # contents:write on this repo, which covers the release + tag + commit. Swap for a PAT
-          # if you later target a different repo for the binary/spec.
+          # contents:write on this repo, which covers the release + tag + commit. This works only
+          # because gitHubReleaseArtifacts targets the SAME repo Actions runs in (ayu55hakya/
+          # uxcam-kmp). If you point it at a different repo (e.g. uxcam/uxcam-kmp), swap this for a
+          # PAT secret with write access to that repo.
           ORG_GRADLE_PROJECT_GITHUB_PUBLISH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         # --no-configuration-cache: the publish/upload/git steps run in doLast and aren't
         # configuration-cache safe, and this repo enables CC by default in gradle.properties.

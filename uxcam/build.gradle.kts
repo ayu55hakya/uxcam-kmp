@@ -85,7 +85,10 @@ kotlin {
 // kotlinCocoapods plugin at BUILD time to cinterop-bind the native UXCam SDK and must stay;
 // it has nothing to do with how the wrapper is DISTRIBUTED.
 //
-//  - Binary host: GitHub Releases on the uxcam org repo (gitHubReleaseArtifacts).
+//  - Binary host: GitHub Releases on the repo named below (gitHubReleaseArtifacts). Currently
+//    ayu55hakya/uxcam-kmp (matches `origin`); move to uxcam/uxcam-kmp later by changing the
+//    repository param + pushing there. Must match `origin` so the tag push and the Release land
+//    in the same repo the default GITHUB_TOKEN can write to.
 //  - SPM: useCustomPackageFile=true — KMMBridge only rewrites the url/checksum variables inside
 //    the marker block of the repo-root Package.swift; that file declares the uxcam-ios-sdk SPM
 //    dependency + a deps target (binaryTargets can't carry dependencies). See ../Package.swift.
@@ -95,7 +98,7 @@ kotlin {
 // Both inputs below must reach Gradle as PROJECT PROPERTIES, not plain env vars: the token is
 // read via `project.property("GITHUB_PUBLISH_TOKEN")`, which throws if it's only an env var.
 //   - ENABLE_PUBLISHING=true        — registers the `kmmBridgePublish` task (default: false)
-//   - GITHUB_PUBLISH_TOKEN          — GH token with write access to uxcam/uxcam-kmp (releases)
+//   - GITHUB_PUBLISH_TOKEN          — GH token with write access to the repo below (releases)
 // Inject the secret as a Gradle property via the ORG_GRADLE_PROJECT_ env prefix, e.g.:
 //   ORG_GRADLE_PROJECT_GITHUB_PUBLISH_TOKEN=$TOKEN ./gradlew :uxcam:kmmBridgePublish -PENABLE_PUBLISHING=true
 // (GITHUB_PUBLISH_USER is optional, defaults to "cirunner"; the repo comes from the
@@ -105,7 +108,9 @@ kotlin {
 kmmbridge {
     frameworkName.set("UXCamKMP")
 
-    gitHubReleaseArtifacts(repository = "uxcam/uxcam-kmp")
+    // Must match `origin` (where Actions runs + the default GITHUB_TOKEN has write access).
+    // Change to "uxcam/uxcam-kmp" when the canonical home moves to the org repo.
+    gitHubReleaseArtifacts(repository = "ayu55hakya/uxcam-kmp")
 
     spm(useCustomPackageFile = true, swiftToolVersion = "5.9") {
         iOS { v("12") }
