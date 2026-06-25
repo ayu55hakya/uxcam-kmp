@@ -73,19 +73,35 @@ kotlin {
     }
 }
 
-// KMMBridge: publishes the iOS XCFramework so consumers install via SPM or CocoaPods and get
-// the native UXCam SDK resolved transitively — no manual `pod 'UXCam'` / version on their side.
+// KMMBridge: publishes the iOS XCFramework so consumers install via SPM and get the native
+// UXCam SDK resolved transitively — no manual `pod 'UXCam'` / version on their side.
 //
-//  - Binary host: GitHub Releases on the uxcam org repo (githubReleaseArtifacts).
+// SPM-only by design. CocoaPods is in maintenance mode (no active development since 2024) and
+// SPM is Apple's actively-maintained, Xcode-native manager, so it's the primary distribution.
+// CocoaPods publishing can be re-added later (a `cocoapods(<specRepoUrl>)` line below) with no
+// permanence cost — unlike CocoaPods trunk, nothing here is a one-way door.
+//
+// NOTE: this is distinct from the kotlin `cocoapods { }` block above — that uses the
+// kotlinCocoapods plugin at BUILD time to cinterop-bind the native UXCam SDK and must stay;
+// it has nothing to do with how the wrapper is DISTRIBUTED.
+//
+//  - Binary host: GitHub Releases on the uxcam org repo (gitHubReleaseArtifacts).
 //  - SPM: useCustomPackageFile=true — KMMBridge only rewrites the url/checksum variables inside
 //    the marker block of the repo-root Package.swift; that file declares the uxcam-ios-sdk SPM
 //    dependency + a deps target (binaryTargets can't carry dependencies). See ../Package.swift.
-//  - CocoaPods: the generated podspec auto-includes `spec.dependency 'UXCam', '3.8.3'` from the
-//    `pod("UXCam")` declaration in the cocoapods { } block above — nothing extra needed here.
 //
-// Publishing runs in CI: requires env GITHUB_PUBLISH_TOKEN (and GITHUB_PUBLISH_USER), a macOS
-// runner with the Swift/CocoaPods toolchain, and `origin` pointing at github.com/uxcam/uxcam-kmp.
+// Publishing (runs in CI on a macOS runner with the Swift toolchain). The publish task is
+// GATED and inert during normal builds/IDE sync — it only registers when ENABLE_PUBLISHING=true.
+// Both inputs below must reach Gradle as PROJECT PROPERTIES, not plain env vars: the token is
+// read via `project.property("GITHUB_PUBLISH_TOKEN")`, which throws if it's only an env var.
+//   - ENABLE_PUBLISHING=true        — registers the `kmmBridgePublish` task (default: false)
+//   - GITHUB_PUBLISH_TOKEN          — GH token with write access to uxcam/uxcam-kmp (releases)
+// Inject the secret as a Gradle property via the ORG_GRADLE_PROJECT_ env prefix, e.g.:
+//   ORG_GRADLE_PROJECT_GITHUB_PUBLISH_TOKEN=$TOKEN ./gradlew :uxcam:kmmBridgePublish -PENABLE_PUBLISHING=true
+// (GITHUB_PUBLISH_USER is optional, defaults to "cirunner"; the repo comes from the
+// gitHubReleaseArtifacts(repository = ...) param below, so GITHUB_REPO is not needed.)
 // Bump `version` above per release; KMMBridge tags the repo and creates the matching GH release.
+// See .github/workflows/publish-ios.yml.
 kmmbridge {
     frameworkName.set("UXCamKMP")
 
@@ -94,8 +110,4 @@ kmmbridge {
     spm(useCustomPackageFile = true, swiftToolVersion = "5.9") {
         iOS { v("12") }
     }
-
-    // Reuses this repo as the CocoaPods spec repo (per project decision). Swap for a dedicated
-    // spec repo, or use cocoapodsTrunk() to publish to the public CocoaPods trunk, if preferred.
-    cocoapods("https://github.com/uxcam/uxcam-kmp.git")
 }
