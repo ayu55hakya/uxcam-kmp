@@ -1,26 +1,25 @@
 import Foundation
 import UIKit
-import UxBootstrap
+import Shared
 
-/// Thin Swift-friendly facade over the `UxBootstrap` framework (the `:example:uxbootstrap`
+/// Thin Swift-friendly facade over the `Shared` framework (the `:example:exampleApp:shared`
 /// module, which re-exports the `:uxcam` Kotlin Multiplatform wrapper).
 ///
 /// It smooths over Kotlin/Native Obj-C interop quirks so the SwiftUI screens stay
 /// readable:
-///  - the `UXCam.shared` object accessor (Kotlin `object` singleton),
+///  - the `UXCamKMP.shared` object accessor (Kotlin `object` singleton),
 ///  - the mangled overload selectors for same-named/different-typed setters
 ///    (`value:` Bool, `value_:` Float, `value__:` Int32, `value___:` String).
 ///
-/// NOTE: the iOS side of the wrapper is currently a non-throwing **stub** (see
-/// `uxcam/src/iosMain/.../UXCam.ios.kt`). Calls log on the Kotlin side and return
-/// defaults until the native iOS UXCam SDK is wired in.
+/// The iOS side of the wrapper is backed by the native iOS UXCam SDK (the `UXCam` pod);
+/// see `uxcam/src/iosMain/.../UXCam.ios.kt`.
 enum UX {
-    private static var sdk: UXCam { UXCam.shared }
+    private static var sdk: UXCamKMP { UXCamKMP.shared }
 
     // MARK: Lifecycle & session
-    // Starts UXCam from the single shared source of the app key (see UxcamInitializer in
-    // :example:uxbootstrap commonMain) — the same code path the Android app runs.
-    static func start() { UxcamInitializer.shared.start() }
+    // Starts UXCam from the single shared source of the app key (see UxcamSetup in
+    // :example:exampleApp:shared commonMain) — the same code path the Android app runs.
+    static func start() { UxcamSetup.shared.start() }
     static func addVerificationListener(onSuccess: @escaping () -> Void,
                                         onFailure: @escaping (String) -> Void) {
         sdk.addVerificationListener(onSuccess: onSuccess, onFailure: onFailure)

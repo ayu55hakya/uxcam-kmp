@@ -44,12 +44,15 @@ kotlin {
         framework {
             baseName = "Shared"
             isStatic = true
+            // Re-export the :uxcam wrapper so the native SwiftUI host (UX.swift) sees the
+            // UXCamKMP / UXConfig types through this single `Shared` framework.
+            export(projects.uxcam)
         }
         // The shared UI calls the :uxcam wrapper, which cinterops the native UXCam pod;
         // declare it here so this module's iOS framework links the native symbols. Mirrors
         // the :uxcam module's own declaration.
         pod("UXCam") {
-            source = path(file("../../../uxcam/localpods/UXCam"))
+            version = "3.8.3"        // pulls from the CocoaPods spec repo
             moduleName = "UXCam"
         }
     }
@@ -57,7 +60,9 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             // The UXCam KMP wrapper — used by UxcamSetup and the occlusion screens.
-            implementation(projects.uxcam)
+            // `api` (not `implementation`) so the framework `export(projects.uxcam)` above
+            // can surface UXCamKMP / UXConfig in the generated Obj-C headers for Swift.
+            api(projects.uxcam)
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)

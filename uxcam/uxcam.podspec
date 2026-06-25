@@ -9,7 +9,7 @@ Pod::Spec.new do |spec|
     spec.vendored_frameworks      = 'build/cocoapods/framework/UXCamKMP.framework'
     spec.libraries                = 'c++'
     spec.ios.deployment_target    = '12.0'
-    spec.dependency 'UXCam'
+    spec.dependency 'UXCam', '3.8.3'
     if !Dir.exist?('build/cocoapods/framework/UXCamKMP.framework') || Dir.empty?('build/cocoapods/framework/UXCamKMP.framework')
         raise "
         Kotlin framework 'UXCamKMP' doesn't exist yet, so a proper Xcode project can't be generated.

@@ -8,8 +8,7 @@ target 'iosApp' do
   # Kotlin framework automatically during the Xcode build.
   pod 'shared', :path => '../shared'
 
-  # The native iOS UXCam SDK, consumed from the locally-built xcframework
-  # (uxcam/localpods/UXCam — gitignored). This provides the native symbols the shared
-  # framework's UXCam wrapper calls into.
-  pod 'UXCam', :path => '../../../uxcam/localpods/UXCam'
+  # The native iOS UXCam SDK, consumed from the published CocoaPods release. This provides
+  # the native symbols the shared framework's UXCam wrapper calls into.
+  pod 'UXCam', '3.8.3'
 end
