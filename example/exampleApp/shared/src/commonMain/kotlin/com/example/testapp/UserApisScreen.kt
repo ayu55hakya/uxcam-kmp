@@ -22,7 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import com.uxcam.kmp.UXCam
+import com.uxcam.kmp.UXCamKMP
 
 @Composable
 internal fun UserApisScreen(onBack: () -> Unit) {
@@ -31,7 +31,7 @@ internal fun UserApisScreen(onBack: () -> Unit) {
     var lastCall by remember { mutableStateOf<String?>(null) }
 
     // Tag this screen in the UXCam timeline as soon as it's shown.
-    LaunchedEffect(Unit) { UXCam.tagScreenName("User APIs") }
+    LaunchedEffect(Unit) { UXCamKMP.tagScreenName("User APIs") }
 
     Column(
         modifier = Modifier
@@ -47,7 +47,7 @@ internal fun UserApisScreen(onBack: () -> Unit) {
         Button(
             modifier = Modifier.fillMaxWidth(),
             onClick = {
-                UXCam.setUserIdentity("user_123456")
+                UXCamKMP.setUserIdentity("user_123456")
                 lastCall = "setUserIdentity(\"user_123456\")"
             },
         ) {
@@ -58,7 +58,7 @@ internal fun UserApisScreen(onBack: () -> Unit) {
         Button(
             modifier = Modifier.fillMaxWidth(),
             onClick = {
-                UXCam.setUserProperty("plan", "premium")
+                UXCamKMP.setUserProperty("plan", "premium")
                 lastCall = "setUserProperty(\"plan\", \"premium\")"
             },
         ) {
@@ -85,7 +85,7 @@ internal fun UserApisScreen(onBack: () -> Unit) {
             modifier = Modifier.fillMaxWidth(),
             enabled = propertyKey.isNotBlank(),
             onClick = {
-                UXCam.setUserProperty(propertyKey, propertyValue)
+                UXCamKMP.setUserProperty(propertyKey, propertyValue)
                 lastCall = "setUserProperty(\"$propertyKey\", \"$propertyValue\")"
             },
         ) {

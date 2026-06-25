@@ -5,8 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
-import com.example.uxbootstrap.UxcamInitializer
-import com.uxcam.kmp.UXCam
+import com.uxcam.kmp.UXCamKMP
 
 /**
  * Launcher / chooser screen. Starts a single UXCam session for the whole app (before
@@ -16,9 +15,9 @@ class LauncherActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        UxcamInitializer.start()
+        UxcamSetup.start()
 
-        UXCam.addVerificationListener(
+        UXCamKMP.addVerificationListener(
             onSuccess = {
                 Log.d("uxcam","success")
                         },

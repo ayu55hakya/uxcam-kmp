@@ -9,7 +9,7 @@ import com.uxcam.screenshot.model.UXCamBlur
 import com.uxcam.screenshot.model.UXCamOcclusion as NativeOcclusion
 import com.uxcam.screenshot.model.UXCamOverlay
 
-actual object UXCam {
+actual object UXCamKMP {
 
     // Tracks the active full-screen occlusion so removeOcclusion() can clear it.
     private var currentOcclusion: NativeOcclusion? = null

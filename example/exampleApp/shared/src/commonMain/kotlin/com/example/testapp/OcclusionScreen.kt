@@ -24,7 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.uxcam.kmp.UXCam
+import com.uxcam.kmp.UXCamKMP
 import com.uxcam.kmp.uxcamOcclude
 
 @Composable
@@ -33,7 +33,7 @@ internal fun OcclusionScreen(onBack: () -> Unit) {
     var dialogText by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) { UXCam.tagScreenName("Occlusion") }
+    LaunchedEffect(Unit) { UXCamKMP.tagScreenName("Occlusion") }
 
     Column(
         modifier = Modifier

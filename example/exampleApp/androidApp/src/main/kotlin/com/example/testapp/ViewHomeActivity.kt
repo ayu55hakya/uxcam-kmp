@@ -4,14 +4,14 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
-import com.uxcam.kmp.UXCam
+import com.uxcam.kmp.UXCamKMP
 
 /** XML home — a menu that opens each feature screen (mirrors the Compose HomeScreen). */
 class ViewHomeActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_home)
-        UXCam.tagScreenName("XML View Home")
+        UXCamKMP.tagScreenName("XML View Home")
 
         open(R.id.userApisButton, UserApisActivity::class.java)
         open(R.id.sessionPropertiesButton, SessionPropertiesActivity::class.java)

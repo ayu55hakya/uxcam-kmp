@@ -14,11 +14,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.uxcam.kmp.UXCam
+import com.uxcam.kmp.UXCamKMP
 
 @Composable
 internal fun CrashScreen(onBack: () -> Unit) {
-    LaunchedEffect(Unit) { UXCam.tagScreenName("Crash") }
+    LaunchedEffect(Unit) { UXCamKMP.tagScreenName("Crash") }
 
     Column(
         modifier = Modifier

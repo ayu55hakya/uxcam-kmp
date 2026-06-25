@@ -37,7 +37,7 @@ private fun unsupported(name: String) {
     println("UXCam KMP (iOS): $name has no native iOS equivalent — no-op")
 }
 
-actual object UXCam {
+actual object UXCamKMP {
 
     // Retained so the verification observer isn't deallocated.
     private var verificationObserver: NSObjectProtocol? = null

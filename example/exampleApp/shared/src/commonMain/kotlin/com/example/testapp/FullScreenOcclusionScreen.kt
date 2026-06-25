@@ -19,13 +19,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import com.uxcam.kmp.UXCam
+import com.uxcam.kmp.UXCamKMP
 
 @Composable
 internal fun FullScreenOcclusionScreen(onBack: () -> Unit) {
     var lastCall by remember { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(Unit) { UXCam.tagScreenName("Full-Screen Occlusion") }
+    LaunchedEffect(Unit) { UXCamKMP.tagScreenName("Full-Screen Occlusion") }
 
     Column(
         modifier = Modifier
@@ -43,11 +43,11 @@ internal fun FullScreenOcclusionScreen(onBack: () -> Unit) {
         )
 
         EventButton("Apply overlay occlusion") {
-            UXCam.applyOverlayOcclusion()
+            UXCamKMP.applyOverlayOcclusion()
             lastCall = "applyOverlayOcclusion()"
         }
         EventButton("Apply blur occlusion") {
-            UXCam.applyBlurOcclusion(blurRadius = 15)
+            UXCamKMP.applyBlurOcclusion(blurRadius = 15)
             lastCall = "applyBlurOcclusion(blurRadius = 15)"
         }
 

@@ -19,7 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import com.uxcam.kmp.UXCam
+import com.uxcam.kmp.UXCamKMP
 
 @Composable
 internal fun SessionControlsScreen(onBack: () -> Unit) {
@@ -28,11 +28,11 @@ internal fun SessionControlsScreen(onBack: () -> Unit) {
     // Opening the picker sends the user to another app; allow a short break so the
     // session continues, then end the break on return (mirrors the android-sdk demo).
     val openImagePicker = rememberImagePicker(onResult = {
-        UXCam.allowShortBreakForAnotherApp(false)
+        UXCamKMP.allowShortBreakForAnotherApp(false)
         lastCall = "allowShortBreakForAnotherApp(false) [returned]"
     })
 
-    LaunchedEffect(Unit) { UXCam.tagScreenName("Session Controls") }
+    LaunchedEffect(Unit) { UXCamKMP.tagScreenName("Session Controls") }
 
     Column(
         modifier = Modifier
@@ -45,20 +45,20 @@ internal fun SessionControlsScreen(onBack: () -> Unit) {
         Text("Session Controls", style = MaterialTheme.typography.headlineMedium)
 
         EventButton("Allow short break for another app") {
-            UXCam.allowShortBreakForAnotherApp(20_000)
+            UXCamKMP.allowShortBreakForAnotherApp(20_000)
             lastCall = "allowShortBreakForAnotherApp(20000) → open image picker"
             openImagePicker()
         }
         EventButton("Cancel current session") {
-            UXCam.cancelCurrentSession()
+            UXCamKMP.cancelCurrentSession()
             lastCall = "cancelCurrentSession()"
         }
         EventButton("Pause screen recording") {
-            UXCam.pauseScreenRecording()
+            UXCamKMP.pauseScreenRecording()
             lastCall = "pauseScreenRecording()"
         }
         EventButton("Resume screen recording") {
-            UXCam.resumeScreenRecording()
+            UXCamKMP.resumeScreenRecording()
             lastCall = "resumeScreenRecording()"
         }
 

@@ -22,7 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import com.uxcam.kmp.UXCam
+import com.uxcam.kmp.UXCamKMP
 
 @Composable
 internal fun CustomEventsScreen(onBack: () -> Unit) {
@@ -31,7 +31,7 @@ internal fun CustomEventsScreen(onBack: () -> Unit) {
     var propertyValue by remember { mutableStateOf("") }
     var lastCall by remember { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(Unit) { UXCam.tagScreenName("Custom Events") }
+    LaunchedEffect(Unit) { UXCamKMP.tagScreenName("Custom Events") }
 
     Column(
         modifier = Modifier
@@ -44,31 +44,31 @@ internal fun CustomEventsScreen(onBack: () -> Unit) {
         Text("Custom Events", style = MaterialTheme.typography.headlineMedium)
 
         EventButton("Event without properties") {
-            UXCam.logEvent("event_no_props")
+            UXCamKMP.logEvent("event_no_props")
             lastCall = "logEvent(\"event_no_props\")"
         }
         EventButton("Event with map properties") {
-            UXCam.logEvent("event_with_map", mapOf("source" to "sample", "count" to 3))
+            UXCamKMP.logEvent("event_with_map", mapOf("source" to "sample", "count" to 3))
             lastCall = "logEvent(\"event_with_map\", {source, count})"
         }
         EventButton("Event with empty map") {
-            UXCam.logEvent("event_empty_map", emptyMap())
+            UXCamKMP.logEvent("event_empty_map", emptyMap())
             lastCall = "logEvent(\"event_empty_map\", {})"
         }
         EventButton("Event with null map") {
-            UXCam.logEvent("event_null_map", null)
+            UXCamKMP.logEvent("event_null_map", null)
             lastCall = "logEvent(\"event_null_map\", null)"
         }
         EventButton("Event with JSON properties") {
-            UXCam.logEventWithJson("event_with_json", "{\"source\":\"sample\",\"count\":3}")
+            UXCamKMP.logEventWithJson("event_with_json", "{\"source\":\"sample\",\"count\":3}")
             lastCall = "logEventWithJson(\"event_with_json\", {...})"
         }
         EventButton("Event with empty JSON") {
-            UXCam.logEventWithJson("event_empty_json", "{}")
+            UXCamKMP.logEventWithJson("event_empty_json", "{}")
             lastCall = "logEventWithJson(\"event_empty_json\", \"{}\")"
         }
         EventButton("Event with null JSON") {
-            UXCam.logEventWithJson("event_null_json", null)
+            UXCamKMP.logEventWithJson("event_null_json", null)
             lastCall = "logEventWithJson(\"event_null_json\", null)"
         }
 
@@ -98,7 +98,7 @@ internal fun CustomEventsScreen(onBack: () -> Unit) {
             modifier = Modifier.fillMaxWidth(),
             enabled = eventName.isNotBlank() && propertyKey.isNotBlank(),
             onClick = {
-                UXCam.logEvent(eventName, mapOf(propertyKey to propertyValue))
+                UXCamKMP.logEvent(eventName, mapOf(propertyKey to propertyValue))
                 lastCall = "logEvent(\"$eventName\", {$propertyKey=$propertyValue})"
             },
         ) {

@@ -2,38 +2,38 @@ package com.example.testapp
 
 import android.os.Bundle
 import android.widget.Button
-import com.uxcam.kmp.UXCam
+import com.uxcam.kmp.UXCamKMP
 
 class StatusActivity : SampleActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_status)
-        UXCam.tagScreenName("Status & Misc")
+        UXCamKMP.tagScreenName("Status & Misc")
 
         findViewById<Button>(R.id.sessionUrl).setOnClickListener {
-            report("urlForCurrentSession() = ${UXCam.urlForCurrentSession()}")
+            report("urlForCurrentSession() = ${UXCamKMP.urlForCurrentSession()}")
         }
         findViewById<Button>(R.id.userUrl).setOnClickListener {
-            report("urlForCurrentUser() = ${UXCam.urlForCurrentUser()}")
+            report("urlForCurrentUser() = ${UXCamKMP.urlForCurrentUser()}")
         }
         findViewById<Button>(R.id.sdkVersion).setOnClickListener {
-            report("getSdkVersionInfo() = ${UXCam.getSdkVersionInfo()}")
+            report("getSdkVersionInfo() = ${UXCamKMP.getSdkVersionInfo()}")
         }
         findViewById<Button>(R.id.pendingCount).setOnClickListener {
-            report("pendingSessionCount() = ${UXCam.pendingSessionCount()}")
+            report("pendingSessionCount() = ${UXCamKMP.pendingSessionCount()}")
         }
         findViewById<Button>(R.id.pendingUploads).setOnClickListener {
-            UXCam.pendingUploads { count -> report("pendingUploads() callback = $count") }
+            UXCamKMP.pendingUploads { count -> report("pendingUploads() callback = $count") }
             report("pendingUploads(callback) …")
         }
         findViewById<Button>(R.id.deletePending).setOnClickListener {
-            UXCam.deletePendingUploads(); report("deletePendingUploads()")
+            UXCamKMP.deletePendingUploads(); report("deletePendingUploads()")
         }
         findViewById<Button>(R.id.crashOn).setOnClickListener {
-            UXCam.disableCrashHandling(true); report("disableCrashHandling(true)")
+            UXCamKMP.disableCrashHandling(true); report("disableCrashHandling(true)")
         }
         findViewById<Button>(R.id.crashOff).setOnClickListener {
-            UXCam.disableCrashHandling(false); report("disableCrashHandling(false)")
+            UXCamKMP.disableCrashHandling(false); report("disableCrashHandling(false)")
         }
     }
 }

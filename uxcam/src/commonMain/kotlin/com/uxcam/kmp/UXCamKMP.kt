@@ -10,7 +10,7 @@ package com.uxcam.kmp
  * APIs are exposed as Kotlin lambdas. Per-view occlusion (android.view.View) has no common type,
  * so it lives only on the Android actual (see UXCam.android.kt).
  */
-expect object UXCam {
+expect object UXCamKMP {
 
     // --- Lifecycle & session ---
     fun startWithConfiguration(config: UXConfig)

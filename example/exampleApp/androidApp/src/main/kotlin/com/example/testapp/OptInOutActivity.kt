@@ -2,31 +2,31 @@ package com.example.testapp
 
 import android.os.Bundle
 import android.widget.Button
-import com.uxcam.kmp.UXCam
+import com.uxcam.kmp.UXCamKMP
 
 class OptInOutActivity : SampleActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_opt_in_out)
-        UXCam.tagScreenName("Opt In / Out")
+        UXCamKMP.tagScreenName("Opt In / Out")
 
         findViewById<Button>(R.id.optInOverall).setOnClickListener {
-            UXCam.optInOverall(); report("optInOverall()")
+            UXCamKMP.optInOverall(); report("optInOverall()")
         }
         findViewById<Button>(R.id.optOutOverall).setOnClickListener {
-            UXCam.optOutOverall(); report("optOutOverall()")
+            UXCamKMP.optOutOverall(); report("optOutOverall()")
         }
         findViewById<Button>(R.id.optInOverallStatus).setOnClickListener {
-            report("optInOverallStatus() = ${UXCam.optInOverallStatus()}")
+            report("optInOverallStatus() = ${UXCamKMP.optInOverallStatus()}")
         }
         findViewById<Button>(R.id.optInVideo).setOnClickListener {
-            UXCam.optIntoVideoRecording(); report("optIntoVideoRecording()")
+            UXCamKMP.optIntoVideoRecording(); report("optIntoVideoRecording()")
         }
         findViewById<Button>(R.id.optOutVideo).setOnClickListener {
-            UXCam.optOutOfVideoRecording(); report("optOutOfVideoRecording()")
+            UXCamKMP.optOutOfVideoRecording(); report("optOutOfVideoRecording()")
         }
         findViewById<Button>(R.id.optInVideoStatus).setOnClickListener {
-            report("optInVideoRecordingStatus() = ${UXCam.optInVideoRecordingStatus()}")
+            report("optInVideoRecordingStatus() = ${UXCamKMP.optInVideoRecordingStatus()}")
         }
     }
 }

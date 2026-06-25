@@ -3,14 +3,14 @@ package com.example.testapp
 import android.app.Activity
 import android.os.Bundle
 import android.widget.Button
-import com.uxcam.kmp.UXCam
+import com.uxcam.kmp.UXCamKMP
 
 /** Uncaught crashes to exercise UXCam's crash handler (shared triggers in Crashes). */
 class CrashActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_crash)
-        UXCam.tagScreenName("Crash")
+        UXCamKMP.tagScreenName("Crash")
 
         findViewById<Button>(R.id.arithmetic).setOnClickListener { Crashes.arithmeticException() }
         findViewById<Button>(R.id.runtime).setOnClickListener { Crashes.runtimeException() }

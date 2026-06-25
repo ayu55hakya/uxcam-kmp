@@ -22,7 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.uxcam.kmp.UXCam
+import com.uxcam.kmp.UXCamKMP
 import com.uxcam.kmp.uxcamOcclude
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -31,7 +31,7 @@ import kotlinx.coroutines.isActive
 internal fun AnimationScreen(onBack: () -> Unit) {
     var visible by remember { mutableStateOf(true) }
 
-    LaunchedEffect(Unit) { UXCam.tagScreenName("Animation") }
+    LaunchedEffect(Unit) { UXCamKMP.tagScreenName("Animation") }
     // Toggle visibility on a loop so the occluded text continuously slides in and out
     // (mirrors the android-sdk "moving composables" demo).
     LaunchedEffect(Unit) {
