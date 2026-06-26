@@ -1,6 +1,6 @@
 [versions]
 agp = "9.0.1"
-android-compileSdk = "36"
+android-compileSdk = "35"
 android-minSdk = "24"
 android-targetSdk = "36"
 # 2.2.21 (not 2.2.20): 2.2.21 is the first patch whose Kotlin/Native compiler supports Xcode 26
