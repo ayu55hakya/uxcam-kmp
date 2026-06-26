@@ -1,0 +1,10 @@
+platform :ios, '15.0'
+
+target 'iosApp' do
+  use_frameworks!
+
+  # The shared Compose Multiplatform framework (module name `ComposeApp`), built from the
+  # :shared Gradle module via the Kotlin CocoaPods plugin. Its script phase compiles the
+  # Kotlin framework automatically during the Xcode build.
+  pod 'shared', :path => '../shared'
+end
