@@ -36,7 +36,7 @@ mavenLocal { mavenContent { includeGroupAndSubgroups("com.uxcam") } }
 `gradle/libs.versions.toml`:
 ```toml
 [versions]
-uxcamKmp = "0.0.1"     
+uxcamKmp = "<latest_version>"     
 
 [libraries]
 uxcam-kmp = { module = "com.uxcam.kmp:uxcam", version.ref = "uxcamKmp" }
@@ -44,7 +44,7 @@ uxcam-kmp = { module = "com.uxcam.kmp:uxcam", version.ref = "uxcamKmp" }
 
 `build.gradle.kts`:
 ```kotlin
-implementation("com.uxcam.kmp:uxcam:0.0.1")
+implementation("com.uxcam.kmp:uxcam:<latest_version>")
 ```
 
 ### Usage
