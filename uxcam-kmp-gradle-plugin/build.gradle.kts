@@ -15,7 +15,7 @@ plugins {
 // marker (com.uxcam.kmp.gradle:com.uxcam.kmp.gradle.gradle.plugin); `publishToMavenLocal` writes
 // both to ~/.m2 so external consumers can resolve via `pluginManagement { mavenLocal() }`.
 group = "com.uxcam.kmp.gradle"
-version = "0.0.2"
+version = "0.0.3"
 
 dependencies {
     // Provides KotlinMultiplatformExtension, CocoapodsExtension, KotlinCocoapodsPlugin and

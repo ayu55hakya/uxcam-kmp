@@ -15,7 +15,7 @@ plugins {
 // publications (one per target + shared metadata) from this group/version when
 // `maven-publish` is applied — `publishToMavenLocal` writes them to ~/.m2.
 group = "com.uxcam.kmp"
-version = "0.0.2"
+version = "0.0.3"
 
 kotlin {
     // `expect`/`actual` objects are stable enough to use; this flag suppresses the

@@ -13,6 +13,6 @@ package com.uxcam.kmp.gradle
  * avoid pulling in the buildConfig plugin. Revisit if drift becomes a problem.)
  */
 internal object Versions {
-    const val UXCAM_KMP = "0.0.2"
+    const val UXCAM_KMP = "0.0.3"
     const val UXCAM_COCOA = "3.8.3"
 }
