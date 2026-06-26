@@ -3,15 +3,18 @@ agp = "9.0.1"
 android-compileSdk = "36"
 android-minSdk = "24"
 android-targetSdk = "36"
-kotlin = "2.4.0"
-composeMultiplatform = "1.11.1"
-material3 = "1.11.0-alpha07"
+# 2.2.21 (not 2.2.20): 2.2.21 is the first patch whose Kotlin/Native compiler supports Xcode 26
+# (2.2.20's commonizer fails on Xcode 26 Metal symbols). Stays metadata 2.2 — readable by Kotlin
+# 2.1.x/2.2.x consumers — while clearing the AGP 9 floor (KGP 2.2.10).
+kotlin = "2.2.21"
+composeMultiplatform = "1.9.3"
+material3 = "1.9.0"
 junit = "4.13.2"
 androidx-activity = "1.13.0"
 androidx-appcompat = "1.7.1"
 androidx-core = "1.19.0"
 androidx-espresso = "3.7.0"
-androidx-lifecycle = "2.11.0-beta01"
+androidx-lifecycle = "2.9.6"
 androidx-testExt = "1.3.0"
 # Native UXCam Android SDK — LOCAL debug build (com.uxcam:uxcam-debug) from ~/.m2.
 # For a real release, switch back to module "com.uxcam:uxcam" + a published version.
@@ -22,6 +25,9 @@ kmmbridge = "1.2.1"
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
+# Kotlin Gradle plugin API — used by the :uxcam-kmp-gradle-plugin module to read the
+# KotlinMultiplatform/CocoaPods extensions of a consuming build (compileOnly there).
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 junit = { module = "junit:junit", version.ref = "junit" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core" }
 androidx-testExt-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-testExt" }
@@ -47,9 +53,13 @@ material = { group = "com.google.android.material", name = "material", version.r
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinCocoapods = { id = "org.jetbrains.kotlin.native.cocoapods", version.ref = "kotlin" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 # KMMBridge (GitHub variant) — publishes the iOS XCFramework to GitHub Releases and
 # generates the SPM Package.swift + CocoaPods podspec. The .github plugin applies the core plugin.
 kmmbridgeGithub = { id = "co.touchlab.kmmbridge.github", version.ref = "kmmbridge" }
+# Our own convenience plugin, resolved from mavenLocal (see settings.gradle.kts). Version tracks
+# the :uxcam-kmp-gradle-plugin module version.
+uxcamKmpGradle = { id = "com.uxcam.kmp.gradle", version = "0.0.2" }

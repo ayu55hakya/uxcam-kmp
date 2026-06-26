@@ -3,11 +3,12 @@ agp = "9.0.1"
 android-compileSdk = "36"
 android-minSdk = "24"
 android-targetSdk = "36"
-kotlin = "2.4.0"
-composeMultiplatform = "1.11.1"
-material3 = "1.11.0-alpha07"
+# 2.2.21: first patch whose Kotlin/Native supports Xcode 26; stays metadata 2.2. See root catalog.
+kotlin = "2.2.21"
+composeMultiplatform = "1.9.3"
+material3 = "1.9.0"
 androidx-activity = "1.13.0"
-androidx-lifecycle = "2.11.0-beta01"
+androidx-lifecycle = "2.9.6"
 # UXCam KMP wrapper (com.uxcam.kmp:uxcam), consumed from mavenLocal.
 uxcam-kmp = "0.0.1"
 

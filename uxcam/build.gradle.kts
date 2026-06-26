@@ -34,7 +34,8 @@ kotlin {
     // that the SwiftUI sample consumes.
     cocoapods {
         version = "0.0.2"
-        summary = "UXCam KMP wrapper"
+        summary = "UXCam" +
+                " KMP wrapper"
         homepage = "https://uxcam.com"
         ios.deploymentTarget = "12.0"
         framework {

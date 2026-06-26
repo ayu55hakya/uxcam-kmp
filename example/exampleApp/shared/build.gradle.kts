@@ -6,6 +6,20 @@ plugins {
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    // Convenience plugin: auto-injects the native `pod("UXCam")` below. Resolved from mavenLocal
+    // (run `:uxcam-kmp-gradle-plugin:publishToMavenLocal` first). Demonstrates the iOS CocoaPods
+    // auto-install for Kotlin-source consumers.
+    alias(libs.plugins.uxcamKmpGradle)
+}
+
+// commonMain auto-install is disabled because this in-repo sample consumes the wrapper as a project
+// dependency (`api(projects.uxcam)` below) — a composite build can't pull its own not-yet-published
+// Maven artifact. External consumers leave it enabled to get `com.uxcam.kmp:uxcam` for free. The
+// plugin still injects the native `pod("UXCam")` for the iOS framework.
+uxcamKmp {
+    autoInstall {
+        commonMain { enabled.set(false) }
+    }
 }
 
 // Shared Compose Multiplatform UI for the sample. commonMain holds the whole UI (App()
@@ -48,13 +62,9 @@ kotlin {
             // UXCamKMP / UXConfig types through this single `Shared` framework.
             export(projects.uxcam)
         }
-        // The shared UI calls the :uxcam wrapper, which cinterops the native UXCam pod;
-        // declare it here so this module's iOS framework links the native symbols. Mirrors
-        // the :uxcam module's own declaration.
-        pod("UXCam") {
-            version = "3.8.3"        // pulls from the CocoaPods spec repo
-            moduleName = "UXCam"
-        }
+        // The native `pod("UXCam")` this module's iOS framework needs (the shared UI calls the
+        // :uxcam wrapper, which cinterops the native UXCam pod) is injected automatically by the
+        // `com.uxcam.kmp.gradle` plugin applied above — no manual `pod("UXCam")` declaration needed.
     }
 
     sourceSets {
