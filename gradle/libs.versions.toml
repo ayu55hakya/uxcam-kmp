@@ -1,6 +1,11 @@
 [versions]
 agp = "9.0.1"
+# The published :uxcam library stays on 35 for the widest consumer compatibility.
 android-compileSdk = "35"
+# The example app compiles against 36: some of its (consumer-side) deps — e.g.
+# androidx.navigationevent — require compileSdk >= 36. This does not affect the library's
+# compatibility, only the sample. Kept separate so bumping the sample never drags up :uxcam.
+android-exampleCompileSdk = "36"
 android-minSdk = "24"
 android-targetSdk = "36"
 # 2.2.21 (not 2.2.20): 2.2.21 is the first patch whose Kotlin/Native compiler supports Xcode 26

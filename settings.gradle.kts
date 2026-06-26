@@ -40,13 +40,15 @@ include(":uxcam")
 // Built here and published to mavenLocal; consumed by the example shared module via this same build.
 include(":uxcam-kmp-gradle-plugin")
 
-// Sample app demonstrating the wrapper. Depends on :uxcam as a project (projects.uxcam),
-// so no publishToMavenLocal round-trip is needed during development.
-// Shared Compose Multiplatform UI + the single source of the app key (UxcamSetup).
-// Both the Android app and the iOS app are thin hosts of this module.
-include(":example:exampleApp:shared")
-include(":example:exampleApp:androidApp")
-
-// NOTE: the clean Compose Multiplatform starter lives at example/composeApp as its own
-// standalone Gradle build (own settings.gradle.kts + gradlew), so it is intentionally
-// NOT included here.
+// Sample app demonstrating the wrapper: the `kmp-template` Compose Multiplatform starter.
+// It is its own standalone Gradle build (own settings.gradle.kts + gradlew) that consumes the
+// wrapper exactly like a real consumer would — the published convenience plugin
+// (`com.uxcam.kmp.gradle`) and the `com.uxcam:*` artifacts, both resolved from mavenLocal.
+//
+// We pull it in as a COMPOSITE BUILD rather than `include(...)` so its nested settings.gradle.kts
+// (pluginManagement + repositories) is honored. This makes its `:androidApp` show up as a runnable
+// Android module when you open `uxcam-kmp` in Android Studio.
+//
+// PREREQUISITE: publish the wrapper to mavenLocal once before syncing, so the sample can resolve it:
+//   ./gradlew :uxcam:publishToMavenLocal :uxcam-kmp-gradle-plugin:publishToMavenLocal
+includeBuild("example/kmp-template")
