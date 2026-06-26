@@ -2,8 +2,8 @@
 import PackageDescription
 
 // BEGIN KMMBRIDGE VARIABLES BLOCK (do not edit)
-let remoteKotlinUrl = "https://www.example.com/"
-let remoteKotlinChecksum = "0000000000000000000000000000000000000000000000000000000000000000"
+let remoteKotlinUrl = "https://api.github.com/repos/ayu55hakya/uxcam-kmp/releases/assets/457594021.zip"
+let remoteKotlinChecksum = "8342dd7aeb665081d3a450fd9c55ed3519386363e6e2ce02b2c043a77424ae3a"
 let packageName = "UXCamKMP"
 // END KMMBRIDGE BLOCK
 
