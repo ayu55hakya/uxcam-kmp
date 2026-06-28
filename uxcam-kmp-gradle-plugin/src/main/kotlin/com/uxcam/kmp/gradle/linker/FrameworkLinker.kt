@@ -22,6 +22,14 @@ import java.io.File
  *
  * No runtime embed is wired because the SDK is static — its code is baked into the consumer's
  * framework at link time.
+ *
+ * **Static consumer frameworks are skipped.** A static Kotlin framework is an archive: the native
+ * UXCam symbols it references stay undefined and are resolved at the consumer's Xcode *app* link,
+ * not at the Gradle framework link. Our Gradle-side `-F` never reaches that app link, and injecting
+ * it would double-provision UXCam when the app already supplies it via Podfile/SPM (the common
+ * embedAndSign shape). So we stand down for static frameworks and leave the native SDK to the app
+ * link — no manual `linker { enabled.set(false) }` needed. Test executables, which ARE linked here
+ * at Gradle time, always get the native SDK regardless of the framework packaging.
  */
 internal object FrameworkLinker {
 
@@ -50,20 +58,24 @@ internal object FrameworkLinker {
             return
         }
 
-        // Resolve the framework root + (optionally) the task that populates it.
-        val frameworkRoot: File
-        val downloadTaskName: String?
-        if (frameworkPathOverride != null) {
-            frameworkRoot = File(frameworkPathOverride)
-            downloadTaskName = null
-            logger.info("Using consumer-supplied UXCam.xcframework at ${frameworkRoot.absolutePath}.")
+        // Resolve the framework root. The cache dir is computed eagerly; the download task that
+        // populates it is registered lazily (ensureDownloadTask) — only when a binary actually
+        // consumes it. A consumer whose frameworks are all static and who has no test binaries
+        // never triggers a download, because static frameworks resolve UXCam at the app link.
+        val cacheDir = File(project.gradle.gradleUserHomeDir, "caches/uxcam-cocoa/$cocoaVersion")
+        val frameworkRoot: File = if (frameworkPathOverride != null) {
+            logger.info("Using consumer-supplied UXCam.xcframework at $frameworkPathOverride.")
+            File(frameworkPathOverride)
         } else {
-            val cacheDir = File(
-                project.gradle.gradleUserHomeDir,
-                "caches/uxcam-cocoa/$cocoaVersion",
-            )
-            frameworkRoot = File(cacheDir, "${UXCamCocoaArtifact.FRAMEWORK}.xcframework")
-            val task = project.tasks.register(
+            File(cacheDir, "${UXCamCocoaArtifact.FRAMEWORK}.xcframework")
+        }
+
+        // Lazily registered on first use; stays null when the consumer supplied their own framework.
+        var downloadTaskName: String? = null
+        fun ensureDownloadTask(): String? {
+            if (frameworkPathOverride != null) return null
+            downloadTaskName?.let { return it }
+            return project.tasks.register(
                 "downloadUXCamCocoaFramework",
                 DownloadUXCamCocoaFramework::class.java,
             ) {
@@ -72,8 +84,7 @@ internal object FrameworkLinker {
                 it.destinationDir.set(cacheDir)
                 it.description = "Downloads and verifies the native UXCam $cocoaVersion XCFramework."
                 it.group = "uxcam"
-            }
-            downloadTaskName = task.name
+            }.name.also { downloadTaskName = it }
         }
 
         appleTargets.forEach { target ->
@@ -89,16 +100,29 @@ internal object FrameworkLinker {
 
             fun wire(binaryName: String, linkTaskName: String, apply: () -> Unit) {
                 apply()
-                if (downloadTaskName != null) {
-                    project.tasks.named(linkTaskName).configure { it.dependsOn(downloadTaskName) }
+                ensureDownloadTask()?.let { dt ->
+                    project.tasks.named(linkTaskName).configure { it.dependsOn(dt) }
                 }
                 logger.info("Linked native UXCam framework to ${target.name}:$binaryName")
             }
 
             target.binaries.withType(Framework::class.java).configureEach { fw ->
+                // Static framework → UXCam resolves at the consumer's app link, which our Gradle-side
+                // `-F` can't reach; injecting would risk double-provisioning. Stand down and instruct.
+                if (fw.isStatic) {
+                    logger.lifecycle(
+                        "UXCam: '${target.name}:${fw.name}' is a static framework — the native UXCam SDK " +
+                            "is resolved at your Xcode app link, not here. Provide it at app link via your " +
+                            "app's Podfile (pod 'UXCam'), SPM, or the app target's FRAMEWORK_SEARCH_PATHS. " +
+                            "Skipping deliver-and-link to avoid double-provisioning."
+                    )
+                    return@configureEach
+                }
                 wire(fw.name, fw.linkTaskName) { fw.linkerOpts(opts) }
             }
             target.binaries.withType(TestExecutable::class.java).configureEach { test ->
+                // Test executables ARE linked here at Gradle time, so they need the native SDK on the
+                // search path regardless of how the consumer's framework is packaged.
                 wire(test.name, test.linkTaskName) { test.linkerOpts(opts) }
             }
         }

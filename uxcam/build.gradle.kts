@@ -26,6 +26,19 @@ kotlin {
 
     iosArm64()
     iosSimulatorArm64()
+    // Intel-Mac simulator. The native UXCam SDK's simulator slice is a fat arm64+x86_64 binary,
+    // so the cinterop binds against the x86_64 architecture it already ships.
+    iosX64()
+
+    // UXCam ships no native SDK for desktop or web, but consumers with 4-target KMP apps call the
+    // wrapper from commonMain, so these targets must resolve. They bind to the no-op `noopMain`
+    // actuals (wired in sourceSets below) — every call compiles and does nothing.
+    jvm()
+
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+    }
 
     // The iOS actuals (iosMain/UXCam.ios.kt) bind to the native iOS UXCam SDK via the
     // CocoaPods plugin. The `UXCam` pod is consumed from the published CocoaPods release
@@ -58,7 +71,18 @@ kotlin {
         }
     }
 
+    // Adding the manual noop dependsOn edges below disables KGP's automatic default hierarchy, so
+    // re-apply it explicitly — otherwise iosMain/androidMain lose their edge to commonMain and the
+    // expect/actual matcher fails ("Expected ... has no actual declaration for Native").
+    applyDefaultHierarchyTemplate()
+
     sourceSets {
+        // Intermediate no-op source set shared by the targets UXCam has no native SDK for.
+        // jvm (desktop) and wasmJs (web) get the no-op UXCamKMP/Occlusion actuals from here.
+        val noopMain by creating { dependsOn(commonMain.get()) }
+        val jvmMain by getting { dependsOn(noopMain) }
+        val wasmJsMain by getting { dependsOn(noopMain) }
+
         commonMain.dependencies {
             // Compose is needed for the occlusion Modifier API (Modifier.uxcamOcclude).
             implementation(libs.compose.runtime)

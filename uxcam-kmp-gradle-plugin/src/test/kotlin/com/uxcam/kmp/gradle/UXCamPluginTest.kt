@@ -6,6 +6,7 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.cocoapods.CocoapodsExtension
+import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -131,6 +132,55 @@ class UXCamPluginTest {
         val download = project.tasks.findByName("downloadUXCamCocoaFramework")
         assertNotNull(download, "expected the download task to be registered for non-cocoapods consumers")
         assertTrue(download is DownloadUXCamCocoaFramework)
+    }
+
+    @Test
+    fun `dynamic consumer framework is wired to the UXCam download`() {
+        val project = ProjectBuilder.builder().build()
+        project.pluginManager.apply("org.jetbrains.kotlin.multiplatform")
+        project.pluginManager.apply(PLUGIN_ID)
+
+        val kotlin = project.extensions.getByType(KotlinMultiplatformExtension::class.java)
+        val target = kotlin.iosArm64()
+        target.binaries.framework { baseName = "shared" } // dynamic by default (isStatic = false)
+
+        project.plugins.getPlugin(UXCamPlugin::class.java).executeConfiguration(project, hostIsMac = true)
+
+        target.binaries.withType(Framework::class.java).forEach { fw ->
+            val linkTask = project.tasks.findByName(fw.linkTaskName)
+            assertNotNull(linkTask, "expected link task ${fw.linkTaskName}")
+            assertTrue(
+                linkTask.dependsOn.any { it.toString().contains("downloadUXCamCocoaFramework") },
+                "dynamic framework link task '${fw.linkTaskName}' must depend on the UXCam download",
+            )
+        }
+    }
+
+    @Test
+    fun `static consumer framework is skipped (native SDK left to the app link)`() {
+        val project = ProjectBuilder.builder().build()
+        project.pluginManager.apply("org.jetbrains.kotlin.multiplatform")
+        project.pluginManager.apply(PLUGIN_ID)
+
+        val kotlin = project.extensions.getByType(KotlinMultiplatformExtension::class.java)
+        val target = kotlin.iosArm64()
+        target.binaries.framework {
+            baseName = "shared"
+            isStatic = true
+        }
+
+        project.plugins.getPlugin(UXCamPlugin::class.java).executeConfiguration(project, hostIsMac = true)
+
+        // The static framework's link task must NOT be wired to deliver-and-link — UXCam is the
+        // consumer's responsibility at app link. (A test executable, if present, may still pull it.)
+        target.binaries.withType(Framework::class.java).forEach { fw ->
+            val linkTask = project.tasks.findByName(fw.linkTaskName)
+            assertNotNull(linkTask, "expected link task ${fw.linkTaskName}")
+            assertTrue(
+                linkTask.dependsOn.none { it.toString().contains("downloadUXCamCocoaFramework") },
+                "static framework link task '${fw.linkTaskName}' must not depend on the UXCam download",
+            )
+        }
     }
 
     @Test
