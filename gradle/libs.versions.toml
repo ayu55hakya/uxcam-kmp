@@ -67,4 +67,4 @@ composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "k
 kmmbridgeGithub = { id = "co.touchlab.kmmbridge.github", version.ref = "kmmbridge" }
 # Our own convenience plugin, resolved from mavenLocal (see settings.gradle.kts). Version tracks
 # the :uxcam-kmp-gradle-plugin module version.
-uxcamKmpGradle = { id = "com.uxcam.kmp.gradle", version = "0.0.2" }
+uxcamKmpGradle = { id = "com.uxcam.kmp.gradle", version = "0.1.0" }

@@ -65,18 +65,22 @@ framework, the `com.uxcam.kmp.gradle` plugin removes the per-module boilerplate 
 Applied to a KMP shared module it:
 
 - adds `com.uxcam.kmp:uxcam` to the `commonMain` source set, and
-- for Kotlin-CocoaPods users on a macOS host, adds the native `pod("UXCam")` so the iOS framework
-  links the native symbols the wrapper's cinterop references.
+- links the native UXCam iOS SDK so the consumer's iOS framework resolves the native symbols the
+  wrapper's cinterop references, via whichever path the project uses:
+  - **Kotlin-CocoaPods** consumers → adds the native `pod("UXCam")` + a deployment-target floor;
+  - **embedAndSign / direct-framework / SPM** consumers → *deliver-and-link*: downloads and
+    checksum-verifies `UXCam.xcframework`, then injects the `-F` / `-framework` / system-library
+    linker options onto each Apple framework binary (no manual SPM/CocoaPods step required).
 
 > This is independent of the binary-XCFramework/SPM distribution above (which is for Swift-only
-> consumers). iOS native linking is **CocoaPods-only** for now; an SPM linker path may follow.
+> consumers).
 
 ```kotlin
 // build.gradle.kts of your KMP shared module
 plugins {
     kotlin("multiplatform")
-    kotlin("native.cocoapods")   // required for the native UXCam pod auto-install
-    id("com.uxcam.kmp.gradle") version "0.0.2"
+    // kotlin("native.cocoapods")   // only if your project uses the Kotlin CocoaPods plugin
+    id("com.uxcam.kmp.gradle") version "0.1.0"
 }
 
 uxcamKmp { }   // defaults: installs com.uxcam.kmp:uxcam into commonMain + pod("UXCam") for iOS

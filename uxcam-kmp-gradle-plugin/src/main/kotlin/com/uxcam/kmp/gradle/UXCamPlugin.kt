@@ -1,11 +1,14 @@
 package com.uxcam.kmp.gradle
 
+import com.uxcam.kmp.gradle.linker.FrameworkLinker
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.cocoapods.CocoapodsExtension
 import org.jetbrains.kotlin.gradle.plugin.cocoapods.KotlinCocoapodsPlugin
+import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.slf4j.LoggerFactory
 
@@ -20,12 +23,13 @@ private const val UXCAM_POD_NAME = "UXCam"
  * Sentry-style convenience plugin (`com.uxcam.kmp.gradle`) for Kotlin-source consumers of the
  * UXCam KMP wrapper. Applying it to a KMP shared module auto-wires the boilerplate a consumer would
  * otherwise write by hand:
- *  - adds `com.uxcam.kmp:uxcam` to the commonMain source set, and
- *  - for Kotlin-CocoaPods users on a Mac host, adds `pod("UXCam")` so the iOS framework links the
- *    native symbols the wrapper's cinterop references.
- *
- * Mirrors `io.sentry.kotlin.multiplatform.gradle`, trimmed to the CocoaPods path (SPM linker
- * auto-config is a future iteration).
+ *  - adds `com.uxcam.kmp:uxcam` to the commonMain source set,
+ *  - verifies the consumer's Kotlin version can resolve the wrapper klib,
+ *  - links the native UXCam iOS SDK so the consumer's framework resolves the native symbols the
+ *    wrapper's cinterop references, across BOTH iOS delivery paths:
+ *      • Kotlin-CocoaPods consumers → adds `pod("UXCam")` + a deployment-target floor,
+ *      • embedAndSign / direct-framework / SPM consumers → deliver-and-link: downloads the native
+ *        `UXCam.xcframework` and injects the `-F`/`-framework`/`-l` linker options ([FrameworkLinker]).
  */
 @Suppress("unused")
 class UXCamPlugin : Plugin<Project> {
@@ -34,13 +38,10 @@ class UXCamPlugin : Plugin<Project> {
         project.afterEvaluate { executeConfiguration(it) }
     }
 
-    /**
-     * Visible for testing so the auto-install logic can be exercised without a real Apple host —
-     * pass [hostIsMac] explicitly to cover the CocoaPods branch on CI.
-     */
+    /** Visible for testing so the logic can be exercised without a real Apple host. */
     internal fun executeConfiguration(
         project: Project,
-        hostIsMac: Boolean = HostManager.hostIsMac
+        hostIsMac: Boolean = HostManager.hostIsMac,
     ) {
         val extension = project.extensions.getByType(UXCamExtension::class.java)
         val autoInstall = extension.autoInstall
@@ -49,14 +50,36 @@ class UXCamPlugin : Plugin<Project> {
             return
         }
 
+        if (autoInstall.verifyKotlinVersion.get()) {
+            project.verifyKotlinVersion()
+        }
+
         if (autoInstall.commonMain.enabled.get()) {
             project.installUXCamForKmp(autoInstall.commonMain)
         }
 
+        // iOS native linking. The Kotlin-CocoaPods path and the deliver-and-link path are mutually
+        // exclusive: CocoaPods already delivers the native framework to the linker, so we only
+        // deliver-and-link when the consumer is NOT using the Kotlin CocoaPods plugin.
         val hasCocoapodsPlugin =
             project.plugins.findPlugin(KotlinCocoapodsPlugin::class.java) != null
-        if (hasCocoapodsPlugin && autoInstall.cocoapods.enabled.get() && hostIsMac) {
-            project.installUXCamForCocoapods(autoInstall.cocoapods)
+        when {
+            hasCocoapodsPlugin && autoInstall.cocoapods.enabled.get() && hostIsMac ->
+                project.installUXCamForCocoapods(autoInstall.cocoapods)
+
+            hasCocoapodsPlugin ->
+                logger.info("Kotlin CocoaPods detected but CocoaPods auto-install is off or host is not a Mac.")
+
+            extension.linker.enabled.get() ->
+                FrameworkLinker.link(
+                    project = project,
+                    cocoaVersion = extension.linker.cocoaVersion.get(),
+                    cocoaSha256 = extension.linker.cocoaSha256.get(),
+                    frameworkPathOverride = extension.linker.frameworkPath.orNull,
+                )
+
+            else ->
+                logger.info("uxcamKmp.linker disabled — skipping native UXCam framework linking.")
         }
     }
 
@@ -69,9 +92,7 @@ class UXCamPlugin : Plugin<Project> {
 internal fun Project.installUXCamForKmp(commonMain: SourceSetAutoInstallExtension) {
     val kmpExtension = extensions.findByName(KOTLIN_EXTENSION_NAME)
     if (kmpExtension !is KotlinMultiplatformExtension) {
-        UXCamPlugin.logger.info(
-            "Kotlin Multiplatform plugin not found — skipping UXCam wrapper installation."
-        )
+        UXCamPlugin.logger.info("Kotlin Multiplatform plugin not found — skipping UXCam wrapper installation.")
         return
     }
 
@@ -87,11 +108,8 @@ internal fun Project.installUXCamForKmp(commonMain: SourceSetAutoInstallExtensio
 
 /**
  * Adds `pod("UXCam")` to the Kotlin CocoaPods configuration, unless the consumer already declared
- * it (their declaration always wins). Mirrors the `pod("UXCam")` a consumer would otherwise write
- * by hand so the iOS framework links the native symbols the wrapper's cinterop references.
- *
- * `linkOnly` is intentionally NOT set: it is ignored (with a warning) for static frameworks, which
- * is the common KMP iOS case, and a plain declaration links correctly for both static and dynamic.
+ * it (their declaration always wins), and guarantees a high-enough iOS deployment target so the
+ * synthetic Podfile can resolve the pod.
  */
 internal fun Project.installUXCamForCocoapods(cocoapods: CocoapodsAutoInstallExtension) {
     val kmpExtension = extensions.findByName(KOTLIN_EXTENSION_NAME)
@@ -107,5 +125,47 @@ internal fun Project.installUXCamForCocoapods(cocoapods: CocoapodsAutoInstallExt
                 moduleName = UXCAM_POD_NAME
             }
         }
+
+        val required = cocoapods.iosDeploymentTarget.get()
+        val current = pods.ios.deploymentTarget
+        if (current == null || compareVersions(current, required) < 0) {
+            pods.ios.deploymentTarget = required
+            UXCamPlugin.logger.info("Set cocoapods.ios.deploymentTarget to $required for UXCam.")
+        }
     }
+}
+
+/**
+ * Fails the build with an actionable message when the consumer's Kotlin version is older than
+ * [Versions.MIN_KOTLIN] — the version the `:uxcam` klib was built with.
+ */
+internal fun Project.verifyKotlinVersion() {
+    val kotlinVersion = runCatching { getKotlinPluginVersion() }.getOrNull() ?: return
+    if (compareVersions(kotlinVersion, Versions.MIN_KOTLIN) < 0) {
+        throw GradleException(
+            """
+            UXCam KMP requires Kotlin ${Versions.MIN_KOTLIN} or newer, but this project uses $kotlinVersion.
+            The com.uxcam.kmp:uxcam library was compiled with Kotlin ${Versions.MIN_KOTLIN} and depends on
+            Kotlin/Native platform libraries that older versions don't provide.
+
+            Fix: set the Kotlin version to ${Versions.MIN_KOTLIN} or newer (e.g. in gradle/libs.versions.toml).
+            To bypass this check: uxcamKmp { autoInstall { verifyKotlinVersion.set(false) } }
+            """.trimIndent()
+        )
+    }
+}
+
+/**
+ * Compares two dot-separated version strings numerically (`"2.2.21"` vs `"2.2.0"`). Any pre-release
+ * suffix after `-` is ignored, missing components are treated as `0`. Negative if [a] < [b].
+ */
+internal fun compareVersions(a: String, b: String): Int {
+    fun parts(v: String) = v.substringBefore('-').split('.').map { it.toIntOrNull() ?: 0 }
+    val aParts = parts(a)
+    val bParts = parts(b)
+    for (i in 0 until maxOf(aParts.size, bParts.size)) {
+        val cmp = aParts.getOrElse(i) { 0 }.compareTo(bParts.getOrElse(i) { 0 })
+        if (cmp != 0) return cmp
+    }
+    return 0
 }

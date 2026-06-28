@@ -15,7 +15,10 @@ plugins {
 // marker (com.uxcam.kmp.gradle:com.uxcam.kmp.gradle.gradle.plugin); `publishToMavenLocal` writes
 // both to ~/.m2 so external consumers can resolve via `pluginManagement { mavenLocal() }`.
 group = "com.uxcam.kmp.gradle"
-version = "0.0.3"
+// 0.1.0: adds the embedAndSign / SPM deliver-and-link path (linker/ package) on top of the
+// CocoaPods auto-install. Canonical home for the plugin (the standalone uxcamKmp dev folder was
+// folded in here).
+version = "0.1.0"
 
 dependencies {
     // Provides KotlinMultiplatformExtension, CocoapodsExtension, KotlinCocoapodsPlugin and

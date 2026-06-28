@@ -11,8 +11,11 @@ import javax.inject.Inject
  * ```kotlin
  * uxcamKmp {
  *     autoInstall {
- *         commonMain { uxcamKmpVersion.set("0.0.2") }
- *         cocoapods  { uxcamCocoaVersion.set("3.8.3") }
+ *         commonMain { uxcamKmpVersion.set("0.0.3") }
+ *         cocoapods  { uxcamCocoaVersion.set("3.8.3") }   // Kotlin-CocoaPods consumers
+ *     }
+ *     linker {                                            // embedAndSign / SPM consumers
+ *         // frameworkPath.set("/path/to/UXCam.xcframework")  // skip the download
  *     }
  * }
  * ```
@@ -22,7 +25,12 @@ abstract class UXCamExtension @Inject constructor(project: Project) {
     val autoInstall: AutoInstallExtension =
         project.objects.newInstance(AutoInstallExtension::class.java, project)
 
+    /** Native-framework linking for non-CocoaPods (embedAndSign / direct framework / SPM) consumers. */
+    val linker: LinkerExtension =
+        project.objects.newInstance(LinkerExtension::class.java, project)
+
     fun autoInstall(action: Action<AutoInstallExtension>) = action.execute(autoInstall)
+    fun linker(action: Action<LinkerExtension>) = action.execute(linker)
 }
 
 /**
@@ -35,6 +43,13 @@ abstract class AutoInstallExtension @Inject constructor(project: Project) {
     val enabled: Property<Boolean> =
         project.objects.property(Boolean::class.java).convention(true)
 
+    /**
+     * Fail the build with an actionable message when the consumer's Kotlin version is older than
+     * the version the `:uxcam` klib was built with ([Versions.MIN_KOTLIN]). Defaults to `true`.
+     */
+    val verifyKotlinVersion: Property<Boolean> =
+        project.objects.property(Boolean::class.java).convention(true)
+
     val commonMain: SourceSetAutoInstallExtension =
         project.objects.newInstance(SourceSetAutoInstallExtension::class.java, project)
 
@@ -42,7 +57,6 @@ abstract class AutoInstallExtension @Inject constructor(project: Project) {
         project.objects.newInstance(CocoapodsAutoInstallExtension::class.java, project)
 
     fun commonMain(action: Action<SourceSetAutoInstallExtension>) = action.execute(commonMain)
-
     fun cocoapods(action: Action<CocoapodsAutoInstallExtension>) = action.execute(cocoapods)
 }
 
@@ -71,4 +85,39 @@ abstract class CocoapodsAutoInstallExtension @Inject constructor(project: Projec
     /** Native iOS UXCam SDK version to install. Defaults to [Versions.UXCAM_COCOA]. */
     val uxcamCocoaVersion: Property<String> =
         project.objects.property(String::class.java).convention(Versions.UXCAM_COCOA)
+
+    /**
+     * Minimum iOS deployment target guaranteed in the Kotlin-CocoaPods configuration so the
+     * synthetic Podfile can resolve the UXCam pod. Applied only when the consumer hasn't already
+     * set an equal-or-higher value. Defaults to [Versions.MIN_IOS_DEPLOYMENT_TARGET].
+     */
+    val iosDeploymentTarget: Property<String> =
+        project.objects.property(String::class.java).convention(Versions.MIN_IOS_DEPLOYMENT_TARGET)
+}
+
+/**
+ * Deliver-and-link configuration for non-CocoaPods consumers. The plugin downloads the native
+ * `UXCam.xcframework` ([cocoaVersion] / [cocoaSha256]), verifies it, and adds it to each Apple
+ * framework's linker search path — unless [frameworkPath] points at a copy you already have.
+ */
+@Suppress("UnnecessaryAbstractClass")
+abstract class LinkerExtension @Inject constructor(project: Project) {
+    /** Enable native-framework linking for non-CocoaPods consumers. Defaults to `true`. */
+    val enabled: Property<Boolean> =
+        project.objects.property(Boolean::class.java).convention(true)
+
+    /** Native UXCam SDK version to download and link. Defaults to [Versions.UXCAM_COCOA]. */
+    val cocoaVersion: Property<String> =
+        project.objects.property(String::class.java).convention(Versions.UXCAM_COCOA)
+
+    /** SHA-256 of the `UXCam.xcframework.zip` for [cocoaVersion]. Defaults to [Versions.UXCAM_COCOA_SHA256]. */
+    val cocoaSha256: Property<String> =
+        project.objects.property(String::class.java).convention(Versions.UXCAM_COCOA_SHA256)
+
+    /**
+     * Absolute path to a `UXCam.xcframework` the consumer supplies (e.g. one SPM already resolved).
+     * When set, the plugin skips the download and links this copy. Unset by default.
+     */
+    val frameworkPath: Property<String> =
+        project.objects.property(String::class.java)
 }

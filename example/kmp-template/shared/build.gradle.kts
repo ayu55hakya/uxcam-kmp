@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
-    id("com.uxcam.kmp.gradle") version "0.0.3"
+    id("com.uxcam.kmp.gradle") version "0.1.0"
 }
 
 // Shared Compose Multiplatform UI. commonMain holds the whole UI (App() + the expect/actual
@@ -42,10 +42,6 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            // The UXCam KMP wrapper — used by UxcamSetup to start a session and by the demo
-            // screens (events, occlusion, user/session APIs, …). Pulls the native Android SDK
-            // (com.uxcam:uxcam-debug) transitively on Android.
-            implementation(libs.uxcam.kmp)
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
