@@ -28,59 +28,12 @@ through a thin Swift facade (`iosApp/Support/UX.swift`) and mirrors the Android 
 
 ## Consuming from an app
 
-In the consumer project's `settings.gradle.kts`,
-```kotlin
-mavenLocal { mavenContent { includeGroupAndSubgroups("com.uxcam") } }
-```
-
-`gradle/libs.versions.toml`:
-```toml
-[versions]
-uxcamKmp = "<latest_version>"     
-
-[libraries]
-uxcam-kmp = { module = "com.uxcam.kmp:uxcam", version.ref = "uxcamKmp" }
-```
-
-`build.gradle.kts`:
-```kotlin
-implementation("com.uxcam.kmp:uxcam:<latest_version>")
-```
-
-### Usage
-
-```kotlin
-import com.uxcam.kmp.UXCamKMP
-import com.uxcam.kmp.UXConfig
-
-UXCamKMP.startWithConfiguration(UXConfig(appKey = "YOUR_APP_KEY"))
-UXCamKMP.logEvent("button_clicked")
-```
-
-## Gradle plugin (Kotlin-source consumers)
-
-For consumers who write **shared Kotlin** that calls the wrapper and build their **own** iOS
-framework, the `com.uxcam.kmp.gradle` plugin removes the per-module boilerplate — modelled on
-[Sentry's KMP Gradle plugin](https://docs.sentry.io/platforms/kotlin/guides/kotlin-multiplatform/configuration/gradle/).
-Applied to a KMP shared module it:
-
-- adds `com.uxcam.kmp:uxcam` to the `commonMain` source set, and
-- links the native UXCam iOS SDK so the consumer's iOS framework resolves the native symbols the
-  wrapper's cinterop references, via whichever path the project uses:
-  - **Kotlin-CocoaPods** consumers → adds the native `pod("UXCam")` + a deployment-target floor;
-  - **embedAndSign / direct-framework / SPM** consumers → *deliver-and-link*: downloads and
-    checksum-verifies `UXCam.xcframework`, then injects the `-F` / `-framework` / system-library
-    linker options onto each Apple framework binary (no manual SPM/CocoaPods step required).
-
-> This is independent of the binary-XCFramework/SPM distribution above (which is for Swift-only
-> consumers).
-
 ```kotlin
 // build.gradle.kts of your KMP shared module
 plugins {
     kotlin("multiplatform")
-    // kotlin("native.cocoapods")   // only if your project uses the Kotlin CocoaPods plugin
-    id("com.uxcam.kmp.gradle") version "0.1.0"
+    kotlin("native.cocoapods")   
+    id("com.uxcam.kmp.gradle") version "<latest>>"
 }
 
 uxcamKmp { }   // defaults: installs com.uxcam.kmp:uxcam into commonMain + pod("UXCam") for iOS
@@ -93,32 +46,18 @@ The plugin currently resolves from **mavenLocal**, so build it once and add the 
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        mavenLocal { mavenContent { includeGroupAndSubgroups("com.uxcam") } }
+        mavenLocal()
     }
 }
 ```
-```bash
-./gradlew :uxcam-kmp-gradle-plugin:publishToMavenLocal
-```
 
-### Configuration
-
-Everything is on by default; override only what you need:
+### Usage
 
 ```kotlin
-uxcamKmp {
-    autoInstall {
-        enabled.set(true)                              // master switch (default true)
-        commonMain {
-            enabled.set(true)                          // add com.uxcam.kmp:uxcam (default true)
-            uxcamKmpVersion.set("0.0.2")               // wrapper version
-        }
-        cocoapods {
-            enabled.set(true)                          // add pod("UXCam") (default true)
-            uxcamCocoaVersion.set("3.8.3")             // native iOS SDK version
-        }
-    }
-}
+import com.uxcam.kmp.UXCamKMP
+import com.uxcam.kmp.UXConfig
+
+UXCamKMP.startWithConfiguration(UXConfig(appKey = "YOUR_APP_KEY"))
+UXCamKMP.logEvent("button_clicked")
 ```
 
-A `pod("UXCam")` you declare yourself always wins — the plugin never overwrites it.
