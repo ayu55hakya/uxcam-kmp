@@ -36,7 +36,17 @@ plugins {
     id("com.uxcam.kmp.gradle") version "<latest>"
 }
 
-uxcamKmp { }   // defaults: installs com.uxcam.kmp:uxcam into commonMain + pod("UXCam") for iOS
+kotlin {
+    listOf(
+        iosArm64(),
+        iosSimulatorArm64()
+    ).forEach { iosTarget ->
+        iosTarget.binaries.framework {
+            baseName = "Shared"
+            isStatic = false //use static frameworks for integration
+        }
+    }
+}
 ```
 
 The plugin currently resolves from **mavenLocal**, so build it once and add the repo:
