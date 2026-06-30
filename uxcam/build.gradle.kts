@@ -35,6 +35,14 @@ kotlin {
     // actuals (wired in sourceSets below) — every call compiles and does nothing.
     jvm()
 
+    // Legacy JS/IR (JavaScript) target. Distinct from wasmJs below: a consumer that declares
+    // `js(IR)` needs a matching `js` artifact to resolve the wrapper from commonMain, and wasmJs
+    // does NOT satisfy that. Binds to the same no-op actuals as the other non-native targets.
+    js(IR) {
+        browser()
+        nodejs()
+    }
+
     @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
     wasmJs {
         browser()
@@ -81,6 +89,7 @@ kotlin {
         // jvm (desktop) and wasmJs (web) get the no-op UXCamKMP/Occlusion actuals from here.
         val noopMain by creating { dependsOn(commonMain.get()) }
         val jvmMain by getting { dependsOn(noopMain) }
+        val jsMain by getting { dependsOn(noopMain) }
         val wasmJsMain by getting { dependsOn(noopMain) }
 
         commonMain.dependencies {
