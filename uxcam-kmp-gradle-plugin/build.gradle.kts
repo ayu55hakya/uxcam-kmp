@@ -18,7 +18,7 @@ group = "com.uxcam.kmp.gradle"
 // 0.1.0: adds the embedAndSign / SPM deliver-and-link path (linker/ package) on top of the
 // CocoaPods auto-install. Canonical home for the plugin (the standalone uxcamKmp dev folder was
 // folded in here).
-version = "0.1.0"
+version = "0.2.0"
 
 dependencies {
     // Provides KotlinMultiplatformExtension, CocoapodsExtension, KotlinCocoapodsPlugin and

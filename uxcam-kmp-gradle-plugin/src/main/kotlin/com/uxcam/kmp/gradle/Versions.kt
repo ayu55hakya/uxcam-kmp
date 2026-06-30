@@ -16,7 +16,7 @@ package com.uxcam.kmp.gradle
  *                    distributions lack platform libraries the klib references.
  */
 internal object Versions {
-    const val UXCAM_KMP = "0.0.3"
+    const val UXCAM_KMP = "0.2.0"
     const val UXCAM_COCOA = "3.8.3"
     const val UXCAM_COCOA_SHA256 = "8708caa4dd24beeec91ffcf6e781ecc9ff0a733353435459cd137e7ea85184a8"
     const val MIN_IOS_DEPLOYMENT_TARGET = "12.0"
