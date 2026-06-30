@@ -33,7 +33,7 @@ through a thin Swift facade (`iosApp/Support/UX.swift`) and mirrors the Android 
 plugins {
     kotlin("multiplatform")
     kotlin("native.cocoapods")   
-    id("com.uxcam.kmp.gradle") version "<latest>>"
+    id("com.uxcam.kmp.gradle") version "<latest>"
 }
 
 uxcamKmp { }   // defaults: installs com.uxcam.kmp:uxcam into commonMain + pod("UXCam") for iOS

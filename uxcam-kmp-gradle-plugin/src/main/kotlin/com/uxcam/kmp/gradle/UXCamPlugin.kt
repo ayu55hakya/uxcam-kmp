@@ -1,6 +1,7 @@
 package com.uxcam.kmp.gradle
 
 import com.uxcam.kmp.gradle.linker.FrameworkLinker
+import com.uxcam.kmp.gradle.linker.SwiftRuntimeLibraries
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -9,6 +10,9 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.cocoapods.CocoapodsExtension
 import org.jetbrains.kotlin.gradle.plugin.cocoapods.KotlinCocoapodsPlugin
 import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
+import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.TestExecutable
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.slf4j.LoggerFactory
 
@@ -133,6 +137,28 @@ internal fun Project.installUXCamForCocoapods(cocoapods: CocoapodsAutoInstallExt
             UXCamPlugin.logger.info("Set cocoapods.ios.deploymentTarget to $required for UXCam.")
         }
     }
+
+    // The Kotlin/Native link of the pod framework force-loads UXCam's static objects, which
+    // autolink the Swift backward-compatibility libs. Put the toolchain's Swift static-lib dir on
+    // the linker search path so they resolve — see [SwiftRuntimeLibraries].
+    kmpExtension.addSwiftCompatLibrarySearchPath(this)
+}
+
+/**
+ * Adds the Swift compatibility library search path ([SwiftRuntimeLibraries]) to every Apple
+ * framework and test binary, so the Kotlin/Native link resolves the `__swift_FORCE_LOAD_$_*`
+ * references the static UXCam SDK carries. Lazy ([configureEach]) so it also covers binaries the
+ * CocoaPods plugin registers later.
+ */
+internal fun KotlinMultiplatformExtension.addSwiftCompatLibrarySearchPath(project: Project) {
+    targets.filterIsInstance<KotlinNativeTarget>()
+        .filter { it.konanTarget.family.isAppleFamily }
+        .forEach { target ->
+            val opts = SwiftRuntimeLibraries.linkerOpts(project, target.name)
+            if (opts.isEmpty()) return@forEach
+            target.binaries.withType(Framework::class.java).configureEach { it.linkerOpts(opts) }
+            target.binaries.withType(TestExecutable::class.java).configureEach { it.linkerOpts(opts) }
+        }
 }
 
 /**

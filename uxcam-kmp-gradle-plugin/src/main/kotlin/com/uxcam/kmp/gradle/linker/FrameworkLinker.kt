@@ -96,7 +96,10 @@ internal object FrameworkLinker {
                 )
                 return@forEach
             }
-            val opts = linkerOpts(File(frameworkRoot, slice))
+            // Same static SDK as the CocoaPods path, so it autolinks the Swift compatibility libs
+            // too — add the toolchain's Swift static-lib search path (see [SwiftRuntimeLibraries]).
+            val opts = linkerOpts(File(frameworkRoot, slice)) +
+                SwiftRuntimeLibraries.linkerOpts(project, target.name)
 
             fun wire(binaryName: String, linkTaskName: String, apply: () -> Unit) {
                 apply()
