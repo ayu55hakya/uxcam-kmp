@@ -12,15 +12,20 @@ package com.uxcam.kmp.gradle
  *                    if a consumer overrides the Cocoa version they must also supply a checksum (or
  *                    point `linker.frameworkPath` at a local copy).
  *  - [MIN_IOS_DEPLOYMENT_TARGET] → lowest iOS deployment target the pod accepts.
- *  - [MIN_KOTLIN] → Kotlin version the `:uxcam` klib was compiled with. Older Kotlin/Native
- *                    distributions lack platform libraries the klib references.
+ *  - [MIN_KOTLIN] → lowest Kotlin version a consumer may use. The `:uxcam` klib is built with
+ *                    Kotlin 2.2.21 (Xcode 26 requirement, see gradle/libs.versions.toml), which
+ *                    stamps klib metadata 2.2. A consumer's compiler must read metadata 2.2 AND
+ *                    provide compatible Kotlin/Native platform libraries — both hold across the
+ *                    whole 2.2.x line, so the floor is the minor (2.2.0), not the build patch.
+ *                    2.1.x reads metadata 2.2 but its platform libraries are unverified; 2.0.x
+ *                    can't read metadata 2.2 at all.
  */
 internal object Versions {
     const val UXCAM_KMP = "0.2.0"
     const val UXCAM_COCOA = "3.8.3"
     const val UXCAM_COCOA_SHA256 = "8708caa4dd24beeec91ffcf6e781ecc9ff0a733353435459cd137e7ea85184a8"
     const val MIN_IOS_DEPLOYMENT_TARGET = "12.0"
-    const val MIN_KOTLIN = "2.2.21"
+    const val MIN_KOTLIN = "2.2.0"
 }
 
 /**

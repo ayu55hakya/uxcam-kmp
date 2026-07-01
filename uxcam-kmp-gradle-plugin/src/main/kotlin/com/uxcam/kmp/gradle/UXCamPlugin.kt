@@ -163,7 +163,8 @@ internal fun KotlinMultiplatformExtension.addSwiftCompatLibrarySearchPath(projec
 
 /**
  * Fails the build with an actionable message when the consumer's Kotlin version is older than
- * [Versions.MIN_KOTLIN] — the version the `:uxcam` klib was built with.
+ * [Versions.MIN_KOTLIN] — the lowest version that can consume the `:uxcam` klib (metadata 2.2 +
+ * matching Kotlin/Native platform libraries).
  */
 internal fun Project.verifyKotlinVersion() {
     val kotlinVersion = runCatching { getKotlinPluginVersion() }.getOrNull() ?: return
@@ -171,8 +172,8 @@ internal fun Project.verifyKotlinVersion() {
         throw GradleException(
             """
             UXCam KMP requires Kotlin ${Versions.MIN_KOTLIN} or newer, but this project uses $kotlinVersion.
-            The com.uxcam.kmp:uxcam library was compiled with Kotlin ${Versions.MIN_KOTLIN} and depends on
-            Kotlin/Native platform libraries that older versions don't provide.
+            The com.uxcam.kmp:uxcam library carries klib metadata 2.2 and references Kotlin/Native
+            platform libraries from the 2.2 line, which older Kotlin versions can't read or provide.
 
             Fix: set the Kotlin version to ${Versions.MIN_KOTLIN} or newer (e.g. in gradle/libs.versions.toml).
             To bypass this check: uxcamKmp { autoInstall { verifyKotlinVersion.set(false) } }
