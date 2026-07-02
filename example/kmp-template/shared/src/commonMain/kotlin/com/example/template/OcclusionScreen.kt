@@ -10,6 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import com.uxcam.kmp.OverlayOcclusion
 import com.uxcam.kmp.UXCamKMP
 import com.uxcam.kmp.uxcamOcclude
 
@@ -41,7 +42,7 @@ internal fun OcclusionScreen(onBack: () -> Unit) = DemoScaffold("Occlusion", "Oc
 
     SectionHeader("Screen occlusion")
     DemoButton("Enable screen occlusion") {
-        UXCamKMP.applyOverlayOcclusion(true); report("occludeSensitiveScreen(true)")
+        UXCamKMP.applyOverlayOcclusion(OverlayOcclusion()); report("occludeSensitiveScreen(true)")
     }
     DemoButton("Disable screen occlusion") {
         UXCamKMP.occludeSensitiveScreen(false); report("occludeSensitiveScreen(false)")

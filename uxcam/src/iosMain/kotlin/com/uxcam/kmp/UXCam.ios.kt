@@ -128,22 +128,22 @@ actual object UXCamKMP {
     actual fun occludeSensitiveScreen(hide: Boolean, withoutGesture: Boolean) =
         NativeUXCam.occludeSensitiveScreen(hide, hideGestures = withoutGesture)
     actual fun occludeAllTextFields(occludeAll: Boolean) = NativeUXCam.occludeAllTextFields(occludeAll)
-    actual fun applyOverlayOcclusion(withoutGesture: Boolean, screens: List<String>) {
+    actual fun applyOverlayOcclusion(overlayOcclusion: OverlayOcclusion) {
         val setting = UXCamOverlaySetting(color = UIColor.blackColor())
-        setting.hideGestures = withoutGesture
-        if (screens.isEmpty()) {
-            NativeUXCam.applyOcclusion(setting)
-            } else {
-            NativeUXCam.applyOcclusion(setting, toScreens = screens)
-            }
-    }
-    actual fun applyBlurOcclusion(blurRadius: Int, withoutGesture: Boolean, screens: List<String>) {
-        val setting = UXCamBlurSetting(radius = blurRadius)
-        setting.hideGestures = withoutGesture
-        if (screens.isEmpty()) {
+        setting.hideGestures = overlayOcclusion.hideGestures
+        if (overlayOcclusion.screens.isEmpty()) {
             NativeUXCam.applyOcclusion(setting)
         } else {
-            NativeUXCam.applyOcclusion(setting, toScreens = screens)
+            NativeUXCam.applyOcclusion(setting, toScreens = overlayOcclusion.screens)
+        }
+    }
+    actual fun applyBlurOcclusion(blurOcclusion: BlurOcclusion) {
+        val setting = UXCamBlurSetting(radius = blurOcclusion.blurRadius)
+        setting.hideGestures = blurOcclusion.hideGestures
+        if (blurOcclusion.screens.isEmpty()) {
+            NativeUXCam.applyOcclusion(setting)
+        } else {
+            NativeUXCam.applyOcclusion(setting, toScreens = blurOcclusion.screens)
         }
     }
     actual fun removeOcclusion() = NativeUXCam.removeOcclusion()
