@@ -58,12 +58,11 @@ expect object UXCamKMP {
     fun removeAllScreenNamesToIgnore()
     fun screenNamesBeingIgnored(): List<String>
 
-    // --- Occlusion (screen-level; per-view is Android-only) ---
     fun occludeSensitiveScreen(hide: Boolean)
     fun occludeSensitiveScreen(hide: Boolean, withoutGesture: Boolean)
     fun occludeAllTextFields(occludeAll: Boolean)
-    fun applyOverlayOcclusion(withoutGesture: Boolean = false)
-    fun applyBlurOcclusion(blurRadius: Int = 15, withoutGesture: Boolean = false)
+    fun applyOverlayOcclusion(withoutGesture: Boolean = false, screens: List<String> = listOf())
+    fun applyBlurOcclusion(blurRadius: Int = 15, withoutGesture: Boolean = false, screens: List<String> = listOf())
     fun removeOcclusion()
 
     // --- Recording control ---
