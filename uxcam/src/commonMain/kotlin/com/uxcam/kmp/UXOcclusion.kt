@@ -37,7 +37,7 @@ enum class BlurType(val id: String) {
  */
 sealed class Occlusion {
     abstract val type: OcclusionType
-    abstract val screens: List<String>
+    abstract val screens: List<String>?
     abstract val excludeMentionedScreens: Boolean
 }
 
@@ -51,7 +51,7 @@ sealed class Occlusion {
 data class OverlayOcclusion(
     val color: Int = 0xFFFF0000.toInt(),
     val hideGestures: Boolean = true,
-    override val screens: List<String> = emptyList(),
+    override val screens: List<String>? = null,
     override val excludeMentionedScreens: Boolean = false,
 ) : Occlusion() {
     override val type: OcclusionType get() = OcclusionType.Overlay
@@ -68,7 +68,7 @@ data class BlurOcclusion(
     val blurRadius: Int = 15,
     val blurType: BlurType = BlurType.Gaussian,
     val hideGestures: Boolean = true,
-    override val screens: List<String> = emptyList(),
+    override val screens: List<String>? = null,
     override val excludeMentionedScreens: Boolean = false,
 ) : Occlusion() {
     override val type: OcclusionType get() = OcclusionType.Blur
