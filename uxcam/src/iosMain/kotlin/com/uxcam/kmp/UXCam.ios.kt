@@ -128,7 +128,7 @@ actual object UXCamKMP {
     actual fun occludeSensitiveScreen(hide: Boolean, withoutGesture: Boolean) =
         NativeUXCam.occludeSensitiveScreen(hide, hideGestures = withoutGesture)
     actual fun occludeAllTextFields(occludeAll: Boolean) = NativeUXCam.occludeAllTextFields(occludeAll)
-    actual fun applyOverlayOcclusion(overlayOcclusion: OverlayOcclusion) {
+    actual fun applyOverlayOcclusion(overlayOcclusion: KMPUXCamOverlay) {
         val setting = UXCamOverlaySetting(color = UIColor.redColor())
         setting.hideGestures = overlayOcclusion.hideGestures
         if (overlayOcclusion.screens.isNullOrEmpty()) {
@@ -137,7 +137,7 @@ actual object UXCamKMP {
             NativeUXCam.applyOcclusion(setting, toScreens = overlayOcclusion.screens)
         }
     }
-    actual fun applyBlurOcclusion(blurOcclusion: BlurOcclusion) {
+    actual fun applyBlurOcclusion(blurOcclusion: KMPUXCamBlur) {
         val setting = UXCamBlurSetting(radius = blurOcclusion.blurRadius)
         setting.hideGestures = blurOcclusion.hideGestures
         if (blurOcclusion.screens.isNullOrEmpty()) {

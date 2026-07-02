@@ -105,11 +105,11 @@ actual object UXCamKMP {
         NativeUXCam.occludeSensitiveScreen(hide, withoutGesture)
     actual fun occludeAllTextFields(occludeAll: Boolean) = NativeUXCam.occludeAllTextFields(occludeAll)
 
-    actual fun applyOverlayOcclusion(overlayOcclusion: OverlayOcclusion) {
+    actual fun applyOverlayOcclusion(overlayOcclusion: KMPUXCamOverlay) {
         applyOcclusion(UXCamOverlay.Builder().withoutGesture(overlayOcclusion.hideGestures).screens(overlayOcclusion.screens).excludeMentionedScreens(overlayOcclusion.excludeMentionedScreens).build())
     }
 
-    actual fun applyBlurOcclusion(blurOcclusion: BlurOcclusion) {
+    actual fun applyBlurOcclusion(blurOcclusion: KMPUXCamBlur) {
         applyOcclusion(UXCamBlur.Builder().blurRadius(blurOcclusion.blurRadius).withoutGesture(blurOcclusion.hideGestures).screens(blurOcclusion.screens).excludeMentionedScreens(blurOcclusion.excludeMentionedScreens).build())
     }
 

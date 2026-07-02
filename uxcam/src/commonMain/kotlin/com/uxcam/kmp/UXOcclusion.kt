@@ -14,7 +14,7 @@ enum class OcclusionType(val nativeValue: Int) {
 }
 
 /**
- * Blur styles supported by the native SDKs (see [BlurOcclusion.blurType]). [id] is the
+ * Blur styles supported by the native SDKs (see [KMPUXCamBlur.blurType]). [id] is the
  * name the native SDK uses to identify the algorithm. Note the iOS SDK only honours a
  * subset (gaussian / box / bokeh); unsupported values fall back to the SDK default.
  */
@@ -27,7 +27,7 @@ enum class BlurType(val id: String) {
  * *where* to apply it ([screens] + [excludeMentionedScreens]). Mirrors the native
  * `UXCamOcclusionSetting` hierarchy and the Flutter plugin's `FlutterUXOcclusion`.
  *
- * Subclass via [OverlayOcclusion] or [BlurOcclusion] and pass an instance to
+ * Subclass via [KMPUXCamOverlay] or [KMPUXCamBlur] and pass an instance to
  * [UXCamKMP.applyOcclusion].
  *
  * @property type the occlusion category, fixed per subtype.
@@ -48,7 +48,7 @@ sealed class Occlusion {
  *   (`0xFFFF0000`), matching the Flutter plugin's `FlutterUXOverlay`.
  * @property hideGestures also suppress gesture capture on the occluded screen(s).
  */
-data class OverlayOcclusion(
+data class KMPUXCamOverlay(
     val color: Int = 0xFFFF0000.toInt(),
     val hideGestures: Boolean = true,
     override val screens: List<String>? = null,
@@ -64,7 +64,7 @@ data class OverlayOcclusion(
  * @property blurType blur algorithm to use — see [BlurType].
  * @property hideGestures also suppress gesture capture on the occluded screen(s).
  */
-data class BlurOcclusion(
+data class KMPUXCamBlur(
     val blurRadius: Int = 15,
     val blurType: BlurType = BlurType.Gaussian,
     val hideGestures: Boolean = true,

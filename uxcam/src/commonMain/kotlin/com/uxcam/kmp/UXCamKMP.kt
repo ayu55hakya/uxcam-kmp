@@ -61,8 +61,8 @@ expect object UXCamKMP {
     fun occludeSensitiveScreen(hide: Boolean)
     fun occludeSensitiveScreen(hide: Boolean, withoutGesture: Boolean)
     fun occludeAllTextFields(occludeAll: Boolean)
-    fun applyOverlayOcclusion(overlayOcclusion: OverlayOcclusion)
-    fun applyBlurOcclusion(blurOcclusion: BlurOcclusion)
+    fun applyOverlayOcclusion(overlayOcclusion: KMPUXCamOverlay)
+    fun applyBlurOcclusion(blurOcclusion: KMPUXCamBlur)
     fun removeOcclusion()
 
     // --- Recording control ---

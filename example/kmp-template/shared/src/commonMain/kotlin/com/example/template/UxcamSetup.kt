@@ -26,6 +26,7 @@ object UxcamSetup {
             UXConfig(
                 appKey = APP_KEY,
                 enableIntegrationLogging = true,
+                enableAutomaticScreenNameTagging = true
             ),
         )
 
