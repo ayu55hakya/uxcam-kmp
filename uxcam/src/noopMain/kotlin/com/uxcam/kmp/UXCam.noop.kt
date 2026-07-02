@@ -58,8 +58,8 @@ actual object UXCamKMP {
     actual fun occludeSensitiveScreen(hide: Boolean) {}
     actual fun occludeSensitiveScreen(hide: Boolean, withoutGesture: Boolean) {}
     actual fun occludeAllTextFields(occludeAll: Boolean) {}
-    actual fun applyOverlayOcclusion(withoutGesture: Boolean) {}
-    actual fun applyBlurOcclusion(blurRadius: Int, withoutGesture: Boolean) {}
+    actual fun applyOverlayOcclusion(withoutGesture: Boolean, screens: List<String>) {}
+    actual fun applyBlurOcclusion(blurRadius: Int, withoutGesture: Boolean, screens: List<String>) {}
     actual fun removeOcclusion() {}
 
     // --- Recording control ---

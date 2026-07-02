@@ -41,7 +41,7 @@ internal fun OcclusionScreen(onBack: () -> Unit) = DemoScaffold("Occlusion", "Oc
 
     SectionHeader("Screen occlusion")
     DemoButton("Enable screen occlusion") {
-        UXCamKMP.occludeSensitiveScreen(true); report("occludeSensitiveScreen(true)")
+        UXCamKMP.applyOverlayOcclusion(true); report("occludeSensitiveScreen(true)")
     }
     DemoButton("Disable screen occlusion") {
         UXCamKMP.occludeSensitiveScreen(false); report("occludeSensitiveScreen(false)")
