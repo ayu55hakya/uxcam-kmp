@@ -10,15 +10,16 @@ plugins {
 // links the native symbols the wrapper's cinterop references. Distinct from the `:uxcam` library
 // itself — this only configures a consuming build, it ships no runtime code.
 //
-// `group`/`version` track `:uxcam` so the plugin and the artifact it installs move together.
-// `java-gradle-plugin` + `maven-publish` auto-create the implementation publication AND the plugin
-// marker (com.uxcam.kmp.gradle:com.uxcam.kmp.gradle.gradle.plugin); `publishToMavenLocal` writes
-// both to ~/.m2 so external consumers can resolve via `pluginManagement { mavenLocal() }`.
+// `group`/`version` track `:uxcam` via the shared `uxcamKmpVersion` in the root gradle.properties,
+// so the plugin and the artifact it installs can never drift apart (previously two hardcoded
+// literals that silently diverged). `java-gradle-plugin` + `maven-publish` auto-create the
+// implementation publication AND the plugin marker
+// (com.uxcam.kmp.gradle:com.uxcam.kmp.gradle.gradle.plugin); `publishToMavenLocal` writes both to
+// ~/.m2 so external consumers can resolve via `pluginManagement { mavenLocal() }`.
+val uxcamKmpVersion = providers.gradleProperty("uxcamKmpVersion").get()
+
 group = "com.uxcam.kmp.gradle"
-// 0.1.0: adds the embedAndSign / SPM deliver-and-link path (linker/ package) on top of the
-// CocoaPods auto-install. Canonical home for the plugin (the standalone uxcamKmp dev folder was
-// folded in here).
-version = "0.2.0"
+version = uxcamKmpVersion
 
 dependencies {
     // Provides KotlinMultiplatformExtension, CocoapodsExtension, KotlinCocoapodsPlugin and
@@ -50,4 +51,27 @@ gradlePlugin {
             implementationClass = "com.uxcam.kmp.gradle.UXCamPlugin"
         }
     }
+}
+
+// The default library version the plugin installs into consumers (Versions.UXCAM_KMP) must equal
+// the plugin's own version. Rather than hand-sync a source literal, generate it from the same
+// `uxcamKmpVersion` property so it can never drift.
+val generateUxcamVersion by tasks.registering {
+    val outputDir = layout.buildDirectory.dir("generated/uxcamVersion/kotlin")
+    val versionValue = uxcamKmpVersion
+    inputs.property("version", versionValue)
+    outputs.dir(outputDir)
+    doLast {
+        val pkgDir = outputDir.get().dir("com/uxcam/kmp/gradle").asFile
+        pkgDir.mkdirs()
+        pkgDir.resolve("GeneratedVersion.kt").writeText(
+            "package com.uxcam.kmp.gradle\n\n" +
+                "/** Generated from `uxcamKmpVersion` in the root gradle.properties — do not edit. */\n" +
+                "internal const val GENERATED_UXCAM_KMP_VERSION: String = \"$versionValue\"\n"
+        )
+    }
+}
+
+kotlin.sourceSets.named("main") {
+    kotlin.srcDir(generateUxcamVersion)
 }

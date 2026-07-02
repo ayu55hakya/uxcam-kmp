@@ -14,8 +14,13 @@ plugins {
 // so the two never collide. The Kotlin Multiplatform plugin auto-creates the
 // publications (one per target + shared metadata) from this group/version when
 // `maven-publish` is applied — `publishToMavenLocal` writes them to ~/.m2.
+// Single source of truth for the released version: `uxcamKmpVersion` in the root
+// gradle.properties. The plugin module and the version the plugin installs into consumers
+// read the same value, so a bump there moves everything together.
+val uxcamKmpVersion = providers.gradleProperty("uxcamKmpVersion").get()
+
 group = "com.uxcam.kmp"
-version = "0.2.0"
+version = uxcamKmpVersion
 
 kotlin {
     // `expect`/`actual` objects are stable enough to use; this flag suppresses the
@@ -54,7 +59,7 @@ kotlin {
     // binding (Kotlin package `cocoapods.UXCam`) and a `uxcam.podspec` for this module
     // that the SwiftUI sample consumes.
     cocoapods {
-        version = "0.2.0"
+        version = uxcamKmpVersion
         summary = "UXCam" +
                 " KMP wrapper"
         homepage = "https://uxcam.com"

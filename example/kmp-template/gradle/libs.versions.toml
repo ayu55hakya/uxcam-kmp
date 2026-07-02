@@ -10,7 +10,7 @@ material3 = "1.9.0"
 androidx-activity = "1.13.0"
 androidx-lifecycle = "2.9.6"
 # UXCam KMP wrapper (com.uxcam.kmp:uxcam), consumed from mavenLocal.
-uxcam-kmp = "0.2.0"
+uxcam-kmp = "0.2.2"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
