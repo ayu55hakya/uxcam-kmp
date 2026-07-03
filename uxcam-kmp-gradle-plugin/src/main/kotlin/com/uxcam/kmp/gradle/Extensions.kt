@@ -99,11 +99,24 @@ abstract class CocoapodsAutoInstallExtension @Inject constructor(project: Projec
  * Deliver-and-link configuration for non-CocoaPods consumers. The plugin downloads the native
  * `UXCam.xcframework` ([cocoaVersion] / [cocoaSha256]), verifies it, and adds it to each Apple
  * framework's linker search path — unless [frameworkPath] points at a copy you already have.
+ * Static frameworks can't take linker options, so for those the SDK is merged into the produced
+ * archive instead ([mergeStaticFrameworks]).
  */
 @Suppress("UnnecessaryAbstractClass")
 abstract class LinkerExtension @Inject constructor(project: Project) {
     /** Enable native-framework linking for non-CocoaPods consumers. Defaults to `true`. */
     val enabled: Property<Boolean> =
+        project.objects.property(Boolean::class.java).convention(true)
+
+    /**
+     * Merge the native UXCam SDK into STATIC consumer frameworks right after the Kotlin link,
+     * making them self-contained — static archives can't carry the linker options the dynamic
+     * path uses, and the plugin has no reach into the Xcode app link where those symbols would
+     * otherwise resolve. Disable this only if your app supplies UXCam itself (Podfile / SPM);
+     * leaving both in place would define the UXCam classes twice at the app link.
+     * Defaults to `true`.
+     */
+    val mergeStaticFrameworks: Property<Boolean> =
         project.objects.property(Boolean::class.java).convention(true)
 
     /** Native UXCam SDK version to download and link. Defaults to [Versions.UXCAM_COCOA]. */

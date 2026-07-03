@@ -43,7 +43,8 @@ kotlin {
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "Shared"
-            isStatic = false //use static frameworks for integration
+            isStatic = true // wizard default; both static and dynamic are supported — the plugin
+                            // links (dynamic) or merges (static) the native UXCam SDK automatically
         }
     }
 }

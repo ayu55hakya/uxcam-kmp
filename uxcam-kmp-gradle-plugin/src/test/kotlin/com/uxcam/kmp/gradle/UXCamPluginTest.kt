@@ -157,7 +157,7 @@ class UXCamPluginTest {
     }
 
     @Test
-    fun `static consumer framework is skipped (native SDK left to the app link)`() {
+    fun `static consumer framework is wired to the UXCam download for the post-link merge`() {
         val project = ProjectBuilder.builder().build()
         project.pluginManager.apply("org.jetbrains.kotlin.multiplatform")
         project.pluginManager.apply(PLUGIN_ID)
@@ -171,14 +171,42 @@ class UXCamPluginTest {
 
         project.plugins.getPlugin(UXCamPlugin::class.java).executeConfiguration(project, hostIsMac = true)
 
-        // The static framework's link task must NOT be wired to deliver-and-link — UXCam is the
-        // consumer's responsibility at app link. (A test executable, if present, may still pull it.)
+        // The archive-producing link ignores linker options, so the static framework instead gets
+        // the native SDK merged in after the link — which needs the download to have run first.
+        target.binaries.withType(Framework::class.java).forEach { fw ->
+            val linkTask = project.tasks.findByName(fw.linkTaskName)
+            assertNotNull(linkTask, "expected link task ${fw.linkTaskName}")
+            assertTrue(
+                linkTask.dependsOn.any { it.toString().contains("downloadUXCamCocoaFramework") },
+                "static framework link task '${fw.linkTaskName}' must depend on the UXCam download",
+            )
+        }
+    }
+
+    @Test
+    fun `static merge opt-out leaves the link task unwired`() {
+        val project = ProjectBuilder.builder().build()
+        project.pluginManager.apply("org.jetbrains.kotlin.multiplatform")
+        project.pluginManager.apply(PLUGIN_ID)
+
+        val kotlin = project.extensions.getByType(KotlinMultiplatformExtension::class.java)
+        val target = kotlin.iosArm64()
+        target.binaries.framework {
+            baseName = "shared"
+            isStatic = true
+        }
+        project.extensions.getByType(UXCamExtension::class.java)
+            .linker.mergeStaticFrameworks.set(false)
+
+        project.plugins.getPlugin(UXCamPlugin::class.java).executeConfiguration(project, hostIsMac = true)
+
+        // With the merge disabled the native SDK is the consumer's responsibility at app link.
         target.binaries.withType(Framework::class.java).forEach { fw ->
             val linkTask = project.tasks.findByName(fw.linkTaskName)
             assertNotNull(linkTask, "expected link task ${fw.linkTaskName}")
             assertTrue(
                 linkTask.dependsOn.none { it.toString().contains("downloadUXCamCocoaFramework") },
-                "static framework link task '${fw.linkTaskName}' must not depend on the UXCam download",
+                "opted-out static framework link task '${fw.linkTaskName}' must not depend on the UXCam download",
             )
         }
     }
@@ -209,6 +237,11 @@ class UXCamPluginTest {
         assertEquals("ios-arm64_x86_64-simulator", FrameworkArchitectures.sliceFor("iosX64"))
         assertNull(FrameworkArchitectures.sliceFor("macosArm64"))
         assertNull(FrameworkArchitectures.sliceFor("linuxX64"))
+
+        assertEquals("arm64", FrameworkArchitectures.archFor("iosArm64"))
+        assertEquals("arm64", FrameworkArchitectures.archFor("iosSimulatorArm64"))
+        assertEquals("x86_64", FrameworkArchitectures.archFor("iosX64"))
+        assertNull(FrameworkArchitectures.archFor("macosArm64"))
     }
 
     @Test

@@ -33,7 +33,8 @@ private const val UXCAM_POD_NAME = "UXCam"
  *    wrapper's cinterop references, across BOTH iOS delivery paths:
  *      • Kotlin-CocoaPods consumers → adds `pod("UXCam")` + a deployment-target floor,
  *      • embedAndSign / direct-framework / SPM consumers → deliver-and-link: downloads the native
- *        `UXCam.xcframework` and injects the `-F`/`-framework`/`-l` linker options ([FrameworkLinker]).
+ *        `UXCam.xcframework`, then injects the `-F`/`-framework`/`-l` linker options for dynamic
+ *        frameworks, or merges the SDK into the produced archive for static ones ([FrameworkLinker]).
  */
 @Suppress("unused")
 class UXCamPlugin : Plugin<Project> {
@@ -80,6 +81,7 @@ class UXCamPlugin : Plugin<Project> {
                     cocoaVersion = extension.linker.cocoaVersion.get(),
                     cocoaSha256 = extension.linker.cocoaSha256.get(),
                     frameworkPathOverride = extension.linker.frameworkPath.orNull,
+                    mergeStaticFrameworks = extension.linker.mergeStaticFrameworks.get(),
                 )
 
             else ->
@@ -142,6 +144,35 @@ internal fun Project.installUXCamForCocoapods(cocoapods: CocoapodsAutoInstallExt
     // autolink the Swift backward-compatibility libs. Put the toolchain's Swift static-lib dir on
     // the linker search path so they resolve — see [SwiftRuntimeLibraries].
     kmpExtension.addSwiftCompatLibrarySearchPath(this)
+
+    kmpExtension.warnOnDynamicCocoapodsFrameworks()
+}
+
+/**
+ * In a Kotlin-CocoaPods build, a DYNAMIC consumer framework gets the UXCam pod's static objects
+ * baked into it at the Kotlin link, while the generated podspec's `dependency 'UXCam'` makes
+ * CocoaPods link a second copy into the app (its `-ObjC` flag force-loads every UXCam object).
+ * Two copies of the UXCam classes coexist at runtime and split the SDK's state — the visible
+ * symptom is gesture tracking recorded at (0,0) in session replays. A STATIC framework leaves the
+ * symbols undefined until the app link, where the pod provides the single copy. The build itself
+ * succeeds either way, so warn (loudly) rather than fail.
+ */
+internal fun KotlinMultiplatformExtension.warnOnDynamicCocoapodsFrameworks() {
+    targets.filterIsInstance<KotlinNativeTarget>()
+        .filter { it.konanTarget.family.isAppleFamily }
+        .forEach { target ->
+            target.binaries.withType(Framework::class.java).configureEach { fw ->
+                if (fw.isStatic) return@configureEach
+                UXCamPlugin.logger.warn(
+                    "UXCam: '${target.name}:${fw.name}' is a dynamic framework in a Kotlin-CocoaPods " +
+                        "build. The Kotlin link embeds one copy of the native UXCam SDK into the " +
+                        "framework and CocoaPods links a second copy into your app — duplicated UXCam " +
+                        "classes at runtime break session data (e.g. gestures pinned at 0,0). Set " +
+                        "`isStatic = true` in the cocoapods framework block so UXCam is resolved once, " +
+                        "at the app link."
+                )
+            }
+        }
 }
 
 /**
