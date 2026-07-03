@@ -6,7 +6,8 @@ plugins {
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
-    id("com.uxcam.kmp.gradle") version "0.2.5"
+    id("com.uxcam.kmp.gradle") version "0.2.6"
+
 }
 
 // Shared Compose Multiplatform UI. commonMain holds the whole UI (App() + the expect/actual
