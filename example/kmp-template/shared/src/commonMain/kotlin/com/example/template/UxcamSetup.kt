@@ -30,9 +30,6 @@ object UxcamSetup {
             ),
         )
 
-        // Opt into screen/video recording. The opt-in state persists per user, so if video
-        // was ever opted out it stays off until this is called again. On iOS this maps to
-        // UXCam's schematic (screen) recording; on Android to video recording.
         UXCamKMP.optIntoVideoRecording()
 
         UXCamKMP.addVerificationListener(
