@@ -7,6 +7,7 @@ data class UXConfig(
     val enableCrashHandling: Boolean = true,
     val enableIntegrationLogging: Boolean = false,
     val occludeAllTextFields: Boolean = false,
+    val occlusions: List<Occlusion> = emptyList(),
 )
 
 internal object UXCamStartGuard {

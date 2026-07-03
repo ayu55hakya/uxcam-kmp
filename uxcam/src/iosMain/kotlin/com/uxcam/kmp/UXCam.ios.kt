@@ -8,6 +8,7 @@ import cocoapods.UXCam.UXCamBlurSetting
 import cocoapods.UXCam.UXCamConfiguration
 import cocoapods.UXCam.UXCamOcclusion
 import cocoapods.UXCam.UXCamOccludeAllTextFields
+import cocoapods.UXCam.UXCamOcclusionSettingProtocol
 import cocoapods.UXCam.UXCamOverlaySetting
 import cocoapods.UXCam.UXCam as NativeUXCam
 import kotlinx.cinterop.BetaInteropApi
@@ -23,6 +24,8 @@ import platform.Foundation.dataUsingEncoding
 import platform.UIKit.UIColor
 import platform.UIKit.UIView
 import platform.darwin.NSObjectProtocol
+import kotlin.collections.emptyList
+import kotlin.collections.listOf
 
 /**
  * iOS implementation — backed by the native iOS UXCam SDK (the `UXCam` pod, consumed
@@ -42,11 +45,13 @@ actual object UXCamKMP {
     // Retained so the verification observer isn't deallocated.
     private var verificationObserver: NSObjectProtocol? = null
 
+    private val pendingOcclusions = mutableListOf<Occlusion>()
+
     // --- Lifecycle & session ---
     actual fun startWithConfiguration(config: UXConfig) {
 
         if (UXCamStartGuard.started) {
-            println("UXCam KMP: already started — ignoring duplicate startWithConfiguration")
+            println("UXCam KMP: already started -> ignoring duplicate startWithConfiguration")
            return
             }
         UXCamStartGuard.started = true
@@ -56,10 +61,36 @@ actual object UXCamKMP {
         configuration.enableCrashHandling = config.enableCrashHandling
         configuration.enableAutomaticScreenNameTagging = config.enableAutomaticScreenNameTagging
         configuration.enableIntegrationLogging = config.enableIntegrationLogging
-        if (config.occludeAllTextFields) {
-            configuration.occlusion = UXCamOcclusion(setting = UXCamOccludeAllTextFields())
+        val startupOcclusions = config.occlusions + pendingOcclusions
+        if (config.occludeAllTextFields || startupOcclusions.isNotEmpty()) {
+            val occlusion = UXCamOcclusion(settings = emptyList<UXCamOcclusionSettingProtocol>())
+
+            if (config.occludeAllTextFields) {
+                occlusion.applySettings(
+                    listOf(UXCamOccludeAllTextFields()),
+                    screens = emptyList<String>(),
+                    excludeMentionedScreens = false,
+                )
+            }
+            startupOcclusions.forEach { rule ->
+                occlusion.applySettings(
+                    listOf(rule.toNativeSetting()),
+                    screens = rule.screens ?: emptyList<String>(),
+                    excludeMentionedScreens = rule.excludeMentionedScreens,
+                )
+            }
+            configuration.occlusion = occlusion
         }
+        pendingOcclusions.clear()
+
         NativeUXCam.startWithConfiguration(configuration)
+    }
+
+    private fun Occlusion.toNativeSetting(): UXCamOcclusionSettingProtocol = when (this) {
+        is KMPUXCamOverlay -> UXCamOverlaySetting(color = UIColor.redColor())
+            .also { it.hideGestures = hideGestures }
+        is KMPUXCamBlur -> UXCamBlurSetting(radius = blurRadius)
+            .also { it.hideGestures = hideGestures }
     }
 
     actual fun startNewSession() = NativeUXCam.startNewSession()
@@ -135,22 +166,26 @@ actual object UXCamKMP {
     actual fun occludeSensitiveScreen(hide: Boolean, withoutGesture: Boolean) =
         NativeUXCam.occludeSensitiveScreen(hide, hideGestures = withoutGesture)
     actual fun occludeAllTextFields(occludeAll: Boolean) = NativeUXCam.occludeAllTextFields(occludeAll)
-    actual fun applyOverlayOcclusion(overlayOcclusion: KMPUXCamOverlay) {
-        val setting = UXCamOverlaySetting(color = UIColor.redColor())
-        setting.hideGestures = overlayOcclusion.hideGestures
-        if (overlayOcclusion.screens.isNullOrEmpty()) {
-            NativeUXCam.applyOcclusion(setting)
-        } else {
-            NativeUXCam.applyOcclusion(setting, toScreens = overlayOcclusion.screens)
+    actual fun applyOverlayOcclusion(overlayOcclusion: KMPUXCamOverlay) = applyOcclusionRule(overlayOcclusion)
+    actual fun applyBlurOcclusion(blurOcclusion: KMPUXCamBlur) = applyOcclusionRule(blurOcclusion)
+
+    private fun applyOcclusionRule(rule: Occlusion) {
+        if (!UXCamStartGuard.started) {
+            pendingOcclusions.add(rule)
+            return
         }
-    }
-    actual fun applyBlurOcclusion(blurOcclusion: KMPUXCamBlur) {
-        val setting = UXCamBlurSetting(radius = blurOcclusion.blurRadius)
-        setting.hideGestures = blurOcclusion.hideGestures
-        if (blurOcclusion.screens.isNullOrEmpty()) {
-            NativeUXCam.applyOcclusion(setting)
-        } else {
-            NativeUXCam.applyOcclusion(setting, toScreens = blurOcclusion.screens)
+        val setting = rule.toNativeSetting()
+        val screens = rule.screens
+        when {
+            screens.isNullOrEmpty() -> NativeUXCam.applyOcclusion(setting)
+            rule.excludeMentionedScreens -> {
+                println(
+                    "UXCam KMP (iOS): excludeMentionedScreens is only honored when the occlusion is " +
+                        "applied before startWithConfiguration — applying to the mentioned screens instead",
+                )
+                NativeUXCam.applyOcclusion(setting, toScreens = screens)
+            }
+            else -> NativeUXCam.applyOcclusion(setting, toScreens = screens)
         }
     }
     actual fun removeOcclusion() = NativeUXCam.removeOcclusion()
