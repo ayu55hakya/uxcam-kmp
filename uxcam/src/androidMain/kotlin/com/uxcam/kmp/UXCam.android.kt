@@ -17,6 +17,13 @@ actual object UXCamKMP {
     // --- Lifecycle & session ---
 
     actual fun startWithConfiguration(config: UXConfig) {
+
+        if (UXCamStartGuard.started) {
+            println("UXCam KMP: already started — ignoring duplicate startWithConfiguration")
+            return
+            }
+        UXCamStartGuard.started = true
+
         val nativeConfig = NativeUXConfig.Builder(config.appKey)
             .enableAutomaticScreenNameTagging(config.enableAutomaticScreenNameTagging)
             .enableMultiSessionRecord(config.enableMultiSessionRecord)

@@ -8,3 +8,7 @@ data class UXConfig(
     val enableIntegrationLogging: Boolean = false,
     val occludeAllTextFields: Boolean = false,
 )
+
+internal object UXCamStartGuard {
+    var started: Boolean = false
+}
