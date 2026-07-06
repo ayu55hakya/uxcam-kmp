@@ -45,7 +45,6 @@ sealed class Occlusion {
  * Hides the matching screens behind a solid-colour overlay.
  *
  * @property color overlay colour packed as `0xAARRGGBB`. Defaults to opaque red
- *   (`0xFFFF0000`), matching the Flutter plugin's `FlutterUXOverlay`.
  * @property hideGestures also suppress gesture capture on the occluded screen(s).
  */
 data class KMPUXCamOverlay(
