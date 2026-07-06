@@ -50,7 +50,7 @@ actual object UXCamKMP {
     // --- Lifecycle & session ---
     actual fun startWithConfiguration(config: UXConfig) {
 
-        if (UXCamStartGuard.started) {
+        if (UXCamStartGuard.started || NativeUXCam.isRecording()) {
             println("UXCam KMP: already started -> ignoring duplicate startWithConfiguration")
            return
             }
