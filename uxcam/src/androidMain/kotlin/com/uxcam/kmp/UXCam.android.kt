@@ -29,6 +29,11 @@ actual object UXCamKMP {
             .enableMultiSessionRecord(config.enableMultiSessionRecord)
             .enableCrashHandling(config.enableCrashHandling)
             .enableIntegrationLogging(config.enableIntegrationLogging)
+            .apply {
+                if(config.occlusions.isNotEmpty()) {
+                    occlusions(config.occlusions.map { it.toNativeOcclusion() })
+                }
+            }
             .build()
         NativeUXCam.startWithConfiguration(nativeConfig)
         if (config.occludeAllTextFields) NativeUXCam.occludeAllTextFields(true)
@@ -113,11 +118,11 @@ actual object UXCamKMP {
     actual fun occludeAllTextFields(occludeAll: Boolean) = NativeUXCam.occludeAllTextFields(occludeAll)
 
     actual fun applyOverlayOcclusion(overlayOcclusion: KMPUXCamOverlay) {
-        applyOcclusion(UXCamOverlay.Builder().withoutGesture(overlayOcclusion.hideGestures).screens(overlayOcclusion.screens).excludeMentionedScreens(overlayOcclusion.excludeMentionedScreens).build())
+        applyOcclusion(overlayOcclusion.toNativeOcclusion())
     }
 
     actual fun applyBlurOcclusion(blurOcclusion: KMPUXCamBlur) {
-        applyOcclusion(UXCamBlur.Builder().blurRadius(blurOcclusion.blurRadius).withoutGesture(blurOcclusion.hideGestures).screens(blurOcclusion.screens).excludeMentionedScreens(blurOcclusion.excludeMentionedScreens).build())
+        applyOcclusion(blurOcclusion.toNativeOcclusion())
     }
 
     actual fun removeOcclusion() {
@@ -129,6 +134,20 @@ actual object UXCamKMP {
         removeOcclusion()
         NativeUXCam.applyOcclusion(occlusion)
         currentOcclusion = occlusion
+    }
+
+    private fun Occlusion.toNativeOcclusion(): NativeOcclusion = when (this) {
+        is KMPUXCamOverlay -> UXCamOverlay.Builder()
+            .withoutGesture(hideGestures)
+            .apply { screens?.let { screens(it) } }
+            .excludeMentionedScreens(excludeMentionedScreens)
+            .build()
+        is KMPUXCamBlur -> UXCamBlur.Builder()
+            .blurRadius(blurRadius)
+            .withoutGesture(hideGestures)
+            .apply { screens?.let { screens(it) } }
+            .excludeMentionedScreens(excludeMentionedScreens)
+            .build()
     }
 
     // --- Recording control ---

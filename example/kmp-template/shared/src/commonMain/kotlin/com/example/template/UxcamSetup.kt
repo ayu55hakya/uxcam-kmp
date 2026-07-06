@@ -1,6 +1,7 @@
 package com.example.template
 
 import com.example.template.UxcamSetup.APP_KEY
+import com.uxcam.kmp.KMPUXCamOverlay
 import com.uxcam.kmp.UXCamKMP
 import com.uxcam.kmp.UXConfig
 
@@ -22,11 +23,19 @@ object UxcamSetup {
     fun start() {
         if (started) return
         started = true
+
+        val overlay = KMPUXCamOverlay(
+            hideGestures = false,
+            screens = listOf("Session Properties"),
+            excludeMentionedScreens = true
+        )
+
         UXCamKMP.startWithConfiguration(
             UXConfig(
                 appKey = APP_KEY,
                 enableIntegrationLogging = true,
-                enableAutomaticScreenNameTagging = true
+                enableAutomaticScreenNameTagging = true,
+                occlusions = listOf(overlay)
             ),
         )
 
