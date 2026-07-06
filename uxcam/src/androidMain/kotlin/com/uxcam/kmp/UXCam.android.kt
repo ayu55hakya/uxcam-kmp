@@ -41,12 +41,20 @@ actual object UXCamKMP {
 
     actual fun startNewSession() = NativeUXCam.startNewSession()
 
-    actual fun stopSessionAndUploadData() = NativeUXCam.stopSessionAndUploadData()
+    actual fun stopSessionAndUploadData() {
+        UXCamStartGuard.started = false
+        NativeUXCam.stopSessionAndUploadData()
+    }
 
-    actual fun stopSessionAndUploadData(onSessionStopped: () -> Unit) =
+    actual fun stopSessionAndUploadData(onSessionStopped: () -> Unit)  {
+        UXCamStartGuard.started = false
         NativeUXCam.stopSessionAndUploadData { onSessionStopped() }
+    }
 
-    actual fun cancelCurrentSession() = NativeUXCam.cancelCurrentSession()
+    actual fun cancelCurrentSession() {
+        UXCamStartGuard.started = false
+        NativeUXCam.cancelCurrentSession()
+    }
 
     // --- Events ---
 
