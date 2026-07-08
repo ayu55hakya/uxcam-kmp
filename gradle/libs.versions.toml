@@ -25,7 +25,6 @@ androidx-testExt = "1.3.0"
 # For a real release, switch back to module "com.uxcam:uxcam" + a published version.
 uxcam = "3.10.5"
 material = "1.14.0"
-kmmbridge = "1.2.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -62,9 +61,3 @@ kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinCocoapods = { id = "org.jetbrains.kotlin.native.cocoapods", version.ref = "kotlin" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-# KMMBridge (GitHub variant) — publishes the iOS XCFramework to GitHub Releases and
-# generates the SPM Package.swift + CocoaPods podspec. The .github plugin applies the core plugin.
-kmmbridgeGithub = { id = "co.touchlab.kmmbridge.github", version.ref = "kmmbridge" }
-# Our own convenience plugin, resolved from mavenLocal (see settings.gradle.kts). Version tracks
-# the :uxcam-kmp-gradle-plugin module version.
-uxcamKmpGradle = { id = "com.uxcam.kmp.gradle", version = "0.2.0" }
