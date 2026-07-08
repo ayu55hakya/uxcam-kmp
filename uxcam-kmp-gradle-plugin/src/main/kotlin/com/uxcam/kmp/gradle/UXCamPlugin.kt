@@ -83,7 +83,12 @@ class UXCamPlugin : Plugin<Project> {
             hasCocoapodsPlugin ->
                 logger.info("Kotlin CocoaPods detected but CocoaPods auto-install is off or host is not a Mac.")
 
-            extension.linker.enabled.get() ->
+            // Host-gated like the CocoaPods path: everything the linker produces (linker opts,
+            // the framework download, the static merge) feeds Apple LINK tasks, which only
+            // execute on macOS. Off-Mac it would just spam xcode-select warnings and — because
+            // disabled link tasks still run their dependencies — download the framework on
+            // Linux/Windows CI for nothing. iOS klib compilation is unaffected by the skip.
+            extension.linker.enabled.get() && hostIsMac ->
                 FrameworkLinker.link(
                     project = project,
                     cocoaVersion = extension.linker.cocoaVersion.get(),
@@ -93,7 +98,9 @@ class UXCamPlugin : Plugin<Project> {
                 )
 
             else ->
-                logger.info("uxcamKmp.linker disabled — skipping native UXCam framework linking.")
+                logger.info(
+                    "uxcamKmp.linker disabled or host is not a Mac — skipping native UXCam framework linking."
+                )
         }
     }
 

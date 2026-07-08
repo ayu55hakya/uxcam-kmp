@@ -7,6 +7,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.TestExecutable
+import org.jetbrains.kotlin.konan.target.HostManager
 import java.io.File
 
 /**
@@ -90,6 +91,10 @@ internal object FrameworkLinker {
                 it.destinationDir.set(cacheDir)
                 it.description = "Downloads and verifies the native UXCam $cocoaVersion XCFramework."
                 it.group = "uxcam"
+                // The framework only feeds macOS-hosted Apple link tasks. Those are disabled
+                // off-Mac, but Gradle still runs a disabled task's dependencies — without this
+                // guard a Linux/Windows CI `check` would download the framework for nothing.
+                it.onlyIf("host is a Mac") { HostManager.hostIsMac }
             }.name.also { downloadTaskName = it }
         }
 

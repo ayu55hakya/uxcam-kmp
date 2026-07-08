@@ -150,6 +150,31 @@ class UXCamPluginTest {
     }
 
     @Test
+    fun `non-mac host skips the deliver-and-link path entirely`() {
+        val project = ProjectBuilder.builder().build()
+        project.pluginManager.apply("org.jetbrains.kotlin.multiplatform")
+        project.pluginManager.apply(PLUGIN_ID)
+
+        val kotlin = project.extensions.getByType(KotlinMultiplatformExtension::class.java)
+        val target = kotlin.iosArm64()
+        target.binaries.framework { baseName = "shared" }
+
+        project.plugins.getPlugin(UXCamPlugin::class.java).executeConfiguration(project, hostIsMac = false)
+
+        // Linker opts, the download task, and the static merge only feed macOS-hosted link
+        // tasks — off-Mac none of it should be configured (no xcode-select warnings, no
+        // framework download on Linux/Windows CI).
+        assertNull(project.tasks.findByName("downloadUXCamCocoaFramework"))
+        target.binaries.withType(Framework::class.java).forEach { fw ->
+            assertTrue(
+                project.tasks.getByName(fw.linkTaskName).dependsOn.none {
+                    it.toString().contains("downloadUXCamCocoaFramework")
+                },
+            )
+        }
+    }
+
+    @Test
     fun `dynamic consumer framework is wired to the UXCam download`() {
         val project = ProjectBuilder.builder().build()
         project.pluginManager.apply("org.jetbrains.kotlin.multiplatform")
