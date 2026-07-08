@@ -31,6 +31,10 @@ dependencyResolutionManagement {
 
 include(":uxcam")
 
+// Compose helpers (Modifier.uxcamOcclude) — separate artifact so non-Compose consumers
+// never pull compose-runtime/ui, and so :uxcam can add targets compose-ui doesn't support.
+include(":uxcam-compose")
+
 // Sentry-style convenience Gradle plugin (id `com.uxcam.kmp.gradle`) for Kotlin-source consumers.
 // Built here and published to mavenLocal; consumed by the example shared module via this same build.
 include(":uxcam-kmp-gradle-plugin")

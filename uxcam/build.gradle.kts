@@ -4,8 +4,6 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.kotlinCocoapods)
     alias(libs.plugins.androidMultiplatformLibrary)
-    alias(libs.plugins.composeMultiplatform)
-    alias(libs.plugins.composeCompiler)
     `maven-publish`
 }
 
@@ -38,6 +36,15 @@ kotlin {
     // wrapper from commonMain, so these targets must resolve. They bind to the no-op `noopMain`
     // actuals (wired in sourceSets below) — every call compiles and does nothing.
     jvm()
+
+    // Desktop-native targets: no native SDK either, but a consumer KMP repo declaring them must
+    // still resolve this dependency from commonMain — without these variants the plugin's
+    // auto-added dependency fails their whole build at resolution. Safe alongside the CocoaPods
+    // plugin (it only touches Apple families). macOS/tvOS/watchOS need the cinterop moved off
+    // pod("UXCam") first — the UXCam pod is iOS-only, so declaring those families here would
+    // break the CocoaPods integration.
+    linuxX64()
+    mingwX64()
 
     // Legacy JS/IR (JavaScript) target. Distinct from wasmJs below: a consumer that declares
     // `js(IR)` needs a matching `js` artifact to resolve the wrapper from commonMain, and wasmJs
@@ -89,21 +96,19 @@ kotlin {
     applyDefaultHierarchyTemplate()
 
     sourceSets {
-        // Intermediate no-op source set shared by the targets UXCam has no native SDK for.
-        // jvm (desktop) and wasmJs (web) get the no-op UXCamKMP/Occlusion actuals from here.
+        // Intermediate no-op source set shared by the targets UXCam has no native SDK for —
+        // they get the no-op UXCamKMP actual from here.
         val noopMain by creating { dependsOn(commonMain.get()) }
         val jvmMain by getting { dependsOn(noopMain) }
         val jsMain by getting { dependsOn(noopMain) }
         val wasmJsMain by getting { dependsOn(noopMain) }
+        val linuxMain by getting { dependsOn(noopMain) }
+        val mingwMain by getting { dependsOn(noopMain) }
 
-        commonMain.dependencies {
-            // Compose is needed for the occlusion Modifier API (Modifier.uxcamOcclude).
-            implementation(libs.compose.runtime)
-            implementation(libs.compose.ui)
-        }
+        // commonMain is stdlib-only. The Compose occlusion Modifier (and its compose-runtime/ui
+        // dependencies) lives in :uxcam-compose so non-Compose consumers stay Compose-free.
         androidMain.dependencies {
             implementation(libs.uxcam.android)
-            implementation(libs.uxcam.ktx.android)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

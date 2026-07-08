@@ -256,6 +256,15 @@ actual object UXCamKMP {
     fun occludeSensitiveView(view: UIView) = NativeUXCam.occludeSensitiveView(view)
     fun occludeSensitiveViewWithoutGesture(view: UIView) = NativeUXCam.occludeSensitiveViewWithoutGesture(view)
     fun unOccludeSensitiveView(view: UIView) = NativeUXCam.unOccludeSensitiveView(view)
+
+    /**
+     * iOS-only hybrid rect occlusion: occludes window-space rects (`[x, y, w, h]` in points) on
+     * subsequent frames. The list pushed for an [identity] REPLACES that identity's previous list
+     * and persists until the next push. Bridged here so :uxcam-compose (and hybrid-UI consumers)
+     * can reach the native rect API without their own cinterop.
+     */
+    fun occludeRectsOnNextFrame(rects: List<List<Double>>, identity: String) =
+        NativeUXCam.occludeRectsOnNextFrame(rects, withIdentity = identity)
 }
 
 /** Bridges a Kotlin map to the `NSDictionary<NSString*, id>` the iOS SDK expects. */

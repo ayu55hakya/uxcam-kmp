@@ -12,7 +12,6 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
-import cocoapods.UXCam.UXCam as NativeUXCam
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
 import platform.CoreGraphics.CGRectMake
@@ -97,7 +96,7 @@ internal object ComposeOcclusionRegistry {
         val rects = entries.mapNotNull { it.windowRectPoints() }
         if (rects == lastPushed) return
         lastPushed = rects
-        NativeUXCam.occludeRectsOnNextFrame(rects.ifEmpty { CLEAR_PAYLOAD }, withIdentity = NATIVE_IDENTITY)
+        UXCamKMP.occludeRectsOnNextFrame(rects.ifEmpty { CLEAR_PAYLOAD }, NATIVE_IDENTITY)
     }
 }
 

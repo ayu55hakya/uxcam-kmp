@@ -22,7 +22,14 @@ internal const val KOTLIN_EXTENSION_NAME = "kotlin"
 
 private const val WRAPPER_GROUP = "com.uxcam.kmp"
 private const val WRAPPER_ARTIFACT = "uxcam"
+private const val COMPOSE_ARTIFACT = "uxcam-compose"
 private const val UXCAM_POD_NAME = "UXCam"
+
+// Either of these on the consumer marks it as a Compose Multiplatform build.
+private val COMPOSE_PLUGIN_IDS = listOf(
+    "org.jetbrains.compose",
+    "org.jetbrains.kotlin.plugin.compose",
+)
 
 /**
  * Sentry-style convenience plugin (`com.uxcam.kmp.gradle`) for Kotlin-source consumers of the
@@ -112,6 +119,13 @@ internal fun Project.installUXCamForKmp(commonMain: SourceSetAutoInstallExtensio
 
     val version = commonMain.uxcamKmpVersion.get()
     commonMainSourceSet.dependencies { api("$WRAPPER_GROUP:$WRAPPER_ARTIFACT:$version") }
+
+    // Compose consumers also get the Modifier.uxcamOcclude artifact; everyone else stays
+    // Compose-free. Same detect-and-wire pattern as the CocoaPods/linker split.
+    val hasCompose = COMPOSE_PLUGIN_IDS.any { plugins.hasPlugin(it) }
+    if (hasCompose && commonMain.composeHelpers.get()) {
+        commonMainSourceSet.dependencies { api("$WRAPPER_GROUP:$COMPOSE_ARTIFACT:$version") }
+    }
 }
 
 /**

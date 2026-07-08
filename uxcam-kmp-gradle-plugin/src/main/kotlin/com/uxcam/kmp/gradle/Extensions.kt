@@ -70,6 +70,14 @@ abstract class SourceSetAutoInstallExtension @Inject constructor(project: Projec
     /** Wrapper version to install. Defaults to [Versions.UXCAM_KMP]. */
     val uxcamKmpVersion: Property<String> =
         project.objects.property(String::class.java).convention(Versions.UXCAM_KMP)
+
+    /**
+     * Also install `com.uxcam.kmp:uxcam-compose` (the `Modifier.uxcamOcclude` helpers) when a
+     * Compose plugin is detected on the consumer. Non-Compose consumers never get the artifact
+     * regardless of this flag. Defaults to `true`.
+     */
+    val composeHelpers: Property<Boolean> =
+        project.objects.property(Boolean::class.java).convention(true)
 }
 
 /** Auto-installation of the native `UXCam` CocoaPods pod (Kotlin-CocoaPods users only). */

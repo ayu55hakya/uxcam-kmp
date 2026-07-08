@@ -58,6 +58,21 @@ class UXCamPluginTest {
     }
 
     @Test
+    fun `non-compose consumer does not get the compose artifact`() {
+        val project = ProjectBuilder.builder().build()
+        project.pluginManager.apply("org.jetbrains.kotlin.multiplatform")
+        project.pluginManager.apply(PLUGIN_ID)
+
+        val ext = project.extensions.getByType(UXCamExtension::class.java)
+        project.installUXCamForKmp(ext.autoInstall.commonMain)
+
+        val composeDeps = project.configurations
+            .flatMap { it.dependencies }
+            .filter { it.group == "com.uxcam.kmp" && it.name == "uxcam-compose" }
+        assertTrue(composeDeps.isEmpty(), "uxcam-compose must only be installed for Compose consumers")
+    }
+
+    @Test
     fun `installs UXCam pod when not already present`() {
         val project = ProjectBuilder.builder().build()
         project.pluginManager.apply("org.jetbrains.kotlin.multiplatform")
