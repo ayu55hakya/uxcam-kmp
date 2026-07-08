@@ -26,9 +26,6 @@ import platform.darwin.dispatch_get_main_queue
  * occluded node's window rect is forwarded through the SDK's hybrid-wrapper rect API
  * (`occludeRectsOnNextFrame:withIdentity:`), whose per-identity list REPLACES the previous
  * push and persists until the next one — so rects only need pushing when layout changes.
- *
- * [isInDialog] is currently unused on iOS: Compose dialog/popup layers are hosted in
- * full-screen windows, so window coordinates are expected to line up with the main scene.
  */
 actual fun Modifier.uxcamOcclude(identifier: String, isInDialog: Boolean): Modifier = composed {
     val hostView = LocalUIViewController.current.view
