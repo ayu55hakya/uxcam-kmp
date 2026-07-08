@@ -148,6 +148,55 @@ class UXCamPluginTest {
         assertTrue(wrapperDeps.isEmpty())
     }
 
+    @Test
+    fun `cocoapods plugin without a UXCam pod falls through to deliver-and-link`() {
+        val project = ProjectBuilder.builder().build()
+        project.pluginManager.apply("org.jetbrains.kotlin.multiplatform")
+        project.pluginManager.apply(PLUGIN_ID)
+        project.pluginManager.apply("org.jetbrains.kotlin.native.cocoapods")
+
+        val kotlin = project.extensions.getByType(KotlinMultiplatformExtension::class.java)
+        kotlin.iosArm64().binaries.framework { baseName = "shared" }
+
+        // Consumer uses CocoaPods for other pods / framework delivery, but opted UXCam out of it.
+        project.extensions.getByType(UXCamExtension::class.java)
+            .autoInstall.cocoapods.enabled.set(false)
+
+        project.plugins.getPlugin(UXCamPlugin::class.java).executeConfiguration(project, hostIsMac = true)
+
+        // Nothing delivers UXCam through CocoaPods, so the linker path must take over.
+        assertNull(project.kotlinCocoapods().pods.findByName("UXCam"))
+        assertNotNull(
+            project.tasks.findByName("downloadUXCamCocoaFramework"),
+            "with no UXCam pod declared, deliver-and-link must not be vetoed by the CocoaPods plugin",
+        )
+    }
+
+    @Test
+    fun `consumer-managed UXCam pod is respected and does not trigger deliver-and-link`() {
+        val project = ProjectBuilder.builder().build()
+        project.pluginManager.apply("org.jetbrains.kotlin.multiplatform")
+        project.pluginManager.apply(PLUGIN_ID)
+        project.pluginManager.apply("org.jetbrains.kotlin.native.cocoapods")
+
+        val kotlin = project.extensions.getByType(KotlinMultiplatformExtension::class.java)
+        kotlin.iosArm64().binaries.framework { baseName = "shared" }
+
+        // Consumer pins their own pod version and disables auto-install.
+        project.kotlinCocoapods().pod("UXCam") { version = "3.7.0" }
+        project.extensions.getByType(UXCamExtension::class.java)
+            .autoInstall.cocoapods.enabled.set(false)
+
+        project.plugins.getPlugin(UXCamPlugin::class.java).executeConfiguration(project, hostIsMac = true)
+
+        // The pod covers delivery: version untouched, no download task registered.
+        assertEquals("3.7.0", project.kotlinCocoapods().pods.getByName("UXCam").version)
+        assertNull(
+            project.tasks.findByName("downloadUXCamCocoaFramework"),
+            "a consumer-declared UXCam pod must not be doubled by deliver-and-link",
+        )
+    }
+
     // ---- deliver-and-link (non-CocoaPods) path ----
 
     @Test

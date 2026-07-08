@@ -72,16 +72,22 @@ class UXCamPlugin : Plugin<Project> {
         }
 
         // iOS native linking. The Kotlin-CocoaPods path and the deliver-and-link path are mutually
-        // exclusive: CocoaPods already delivers the native framework to the linker, so we only
-        // deliver-and-link when the consumer is NOT using the Kotlin CocoaPods plugin.
+        // exclusive, but the deciding fact is whether the UXCam POD delivers the native framework
+        // — not whether the CocoaPods plugin happens to be applied. A consumer can use CocoaPods
+        // for other pods (or just as the framework-delivery mechanism) while UXCam is delivered
+        // by the linker; only a declared pod("UXCam") — auto-installed or consumer-managed —
+        // makes deliver-and-link redundant.
         val hasCocoapodsPlugin =
             project.plugins.findPlugin(KotlinCocoapodsPlugin::class.java) != null
         when {
             hasCocoapodsPlugin && autoInstall.cocoapods.enabled.get() && hostIsMac ->
                 project.installUXCamForCocoapods(autoInstall.cocoapods)
 
-            hasCocoapodsPlugin ->
-                logger.info("Kotlin CocoaPods detected but CocoaPods auto-install is off or host is not a Mac.")
+            // CocoaPods auto-install disabled but the consumer declares pod("UXCam") themselves:
+            // the pod covers delivery, but the static SDK still needs the Swift-compat search
+            // path and the dynamic-framework warning the auto-install path would have added.
+            hasCocoapodsPlugin && project.hasUXCamPod() && hostIsMac ->
+                project.configureConsumerManagedUXCamPod()
 
             // Host-gated like the CocoaPods path: everything the linker produces (linker opts,
             // the framework download, the static merge) feeds Apple LINK tasks, which only
@@ -160,6 +166,28 @@ private fun Project.hasDeclaredDependency(group: String, name: String): Boolean 
     configurations.any { configuration ->
         configuration.dependencies.any { it.group == group && it.name == name }
     }
+
+/** True when the consumer's Kotlin CocoaPods configuration declares `pod("UXCam")`. */
+internal fun Project.hasUXCamPod(): Boolean {
+    val kmpExtension =
+        extensions.findByName(KOTLIN_EXTENSION_NAME) as? KotlinMultiplatformExtension ?: return false
+    val pods = (kmpExtension as ExtensionAware).extensions
+        .findByType(CocoapodsExtension::class.java) ?: return false
+    return pods.pods.findByName(UXCAM_POD_NAME) != null
+}
+
+/**
+ * The consumer manages `pod("UXCam")` themselves (CocoaPods auto-install is disabled): the pod
+ * covers native-framework delivery, but linking the static SDK still needs the Swift-compat
+ * library search path, and a dynamic framework still duplicates the SDK at the app link — apply
+ * the two link-side safeguards without touching the pods configuration.
+ */
+internal fun Project.configureConsumerManagedUXCamPod() {
+    val kmpExtension = extensions.findByName(KOTLIN_EXTENSION_NAME)
+    if (kmpExtension !is KotlinMultiplatformExtension) return
+    kmpExtension.addSwiftCompatLibrarySearchPath(this)
+    kmpExtension.warnOnDynamicCocoapodsFrameworks()
+}
 
 /**
  * Adds `pod("UXCam")` to the Kotlin CocoaPods configuration, unless the consumer already declared
