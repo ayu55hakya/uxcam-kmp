@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
-    id("com.uxcam.kmp.gradle") version "0.2.9"
+    id("com.uxcam.kmp.gradle") version "0.3.3"
 
 }
 

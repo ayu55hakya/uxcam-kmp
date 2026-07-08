@@ -11,9 +11,7 @@ pluginManagement {
             }
         }
         mavenCentral()
-        mavenLocal {
-            mavenContent { includeGroupAndSubgroups("com.uxcam") }
-        }
+        mavenLocal()
         gradlePluginPortal()
     }
 }
@@ -28,9 +26,7 @@ dependencyResolutionManagement {
             }
         }
         mavenCentral()
-        mavenLocal {
-            mavenContent { includeGroupAndSubgroups("com.uxcam") }
-        }
+        mavenLocal()
     }
 }
 

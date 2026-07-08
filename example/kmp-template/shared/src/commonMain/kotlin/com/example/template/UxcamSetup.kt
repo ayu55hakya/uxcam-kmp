@@ -35,7 +35,7 @@ object UxcamSetup {
                 appKey = APP_KEY,
                 enableIntegrationLogging = true,
                 enableAutomaticScreenNameTagging = true,
-                occlusions = listOf(overlay)
+//                occlusions = listOf(overlay)
             ),
         )
 
