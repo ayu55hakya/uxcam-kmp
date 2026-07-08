@@ -42,7 +42,7 @@ private fun unsupported(name: String) {
 
 actual object UXCamKMP {
 
-    // Retained so the verification observer isn't deallocated.
+    // Token kept so the previous observer can be removed on re-registration.
     private var verificationObserver: NSObjectProtocol? = null
 
     private val pendingOcclusions = mutableListOf<Occlusion>()
@@ -229,6 +229,7 @@ actual object UXCamKMP {
 
     // --- Verification --- (iOS reports verification via an NSNotification, not a callback)
     actual fun addVerificationListener(onSuccess: () -> Unit, onFailure: (errorMessage: String) -> Unit) {
+        verificationObserver?.let { NSNotificationCenter.defaultCenter.removeObserver(it) }
         verificationObserver = NSNotificationCenter.defaultCenter.addObserverForName(
             name = UXCam_VerifyNotification,
             `object` = null,
