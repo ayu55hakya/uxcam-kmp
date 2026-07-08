@@ -66,7 +66,7 @@ actual object UXCamKMP {
     }
 
     actual fun logEventWithJson(eventName: String, json: String?) {
-        NativeUXCam.logEvent(eventName, json?.let(::JSONObject))
+        NativeUXCam.logEvent(eventName, json?.let(::parseJsonOrNull))
     }
 
     // --- Bug & exception reporting ---
@@ -78,7 +78,7 @@ actual object UXCamKMP {
     }
 
     actual fun reportBugEventWithJson(eventName: String, json: String?) {
-        NativeUXCam.reportBugEvent(eventName, json?.let(::JSONObject))
+        NativeUXCam.reportBugEvent(eventName, json?.let(::parseJsonOrNull))
     }
 
     actual fun reportExceptionEvent(throwable: Throwable) =
@@ -137,6 +137,10 @@ actual object UXCamKMP {
         currentOcclusion?.let { NativeUXCam.removeOcclusion(it) }
         currentOcclusion = null
     }
+
+    private fun parseJsonOrNull(json: String): JSONObject? = runCatching { JSONObject(json) }
+        .onFailure { println("UXCam KMP (Android): invalid JSON properties dropped — ${it.message}") }
+        .getOrNull()
 
     private fun applyOcclusion(occlusion: NativeOcclusion) {
         removeOcclusion()

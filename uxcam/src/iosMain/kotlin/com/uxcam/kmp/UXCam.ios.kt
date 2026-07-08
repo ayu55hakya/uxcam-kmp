@@ -26,6 +26,7 @@ import platform.UIKit.UIView
 import platform.darwin.NSObjectProtocol
 import kotlin.collections.emptyList
 import kotlin.collections.listOf
+import kotlin.experimental.ExperimentalNativeApi
 
 /**
  * iOS implementation — backed by the native iOS UXCam SDK (the `UXCam` pod, consumed
@@ -123,11 +124,12 @@ actual object UXCamKMP {
         NativeUXCam.reportBugEvent(eventName, properties = json?.let { parseJsonToMap(it) })
     actual fun reportExceptionEvent(throwable: Throwable) =
         reportExceptionEvent(throwable, null)
+    @OptIn(ExperimentalNativeApi::class)
     actual fun reportExceptionEvent(throwable: Throwable, properties: Map<String, Any?>?) =
         NativeUXCam.reportExceptionEvent(
             name = throwable::class.simpleName ?: "Throwable",
             reason = throwable.message ?: "",
-            callStacks = emptyList<String>(),
+            callStacks = throwable.getStackTrace().toList(),
             properties = properties?.toNSDictionaryMap(),
         )
 
