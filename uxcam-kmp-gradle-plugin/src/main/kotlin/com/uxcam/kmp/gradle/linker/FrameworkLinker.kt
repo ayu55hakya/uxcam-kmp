@@ -89,6 +89,9 @@ internal object FrameworkLinker {
                 it.zipUrl.set(UXCamCocoa.zipUrl(cocoaVersion))
                 it.sha256.set(cocoaSha256)
                 it.destinationDir.set(cacheDir)
+                // Captured as a plain Boolean at registration (configuration-cache safe); with a
+                // cold cache the task fails fast instead of touching the network.
+                it.offline.set(project.gradle.startParameter.isOffline)
                 it.description = "Downloads and verifies the native UXCam $cocoaVersion XCFramework."
                 it.group = "uxcam"
                 // The framework only feeds macOS-hosted Apple link tasks. Those are disabled

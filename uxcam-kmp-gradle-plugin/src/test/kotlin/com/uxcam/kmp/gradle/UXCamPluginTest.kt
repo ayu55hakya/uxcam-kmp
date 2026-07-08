@@ -58,6 +58,24 @@ class UXCamPluginTest {
     }
 
     @Test
+    fun `consumer-declared wrapper dependency wins over auto-install`() {
+        val project = ProjectBuilder.builder().build()
+        project.pluginManager.apply("org.jetbrains.kotlin.multiplatform")
+        project.pluginManager.apply(PLUGIN_ID)
+
+        val kmp = project.extensions.getByType(KotlinMultiplatformExtension::class.java)
+        kmp.sourceSets.getByName("commonMain").dependencies { api("com.uxcam.kmp:uxcam:0.1.0") }
+
+        val ext = project.extensions.getByType(UXCamExtension::class.java)
+        project.installUXCamForKmp(ext.autoInstall.commonMain)
+
+        val wrapperDeps = project.configurations.flatMap { it.dependencies }
+            .filter { it.group == "com.uxcam.kmp" && it.name == "uxcam" }
+        assertEquals(1, wrapperDeps.size, "auto-install must not duplicate a consumer-declared wrapper")
+        assertEquals("0.1.0", wrapperDeps.first().version, "the consumer's version choice must win")
+    }
+
+    @Test
     fun `non-compose consumer does not get the compose artifact`() {
         val project = ProjectBuilder.builder().build()
         project.pluginManager.apply("org.jetbrains.kotlin.multiplatform")

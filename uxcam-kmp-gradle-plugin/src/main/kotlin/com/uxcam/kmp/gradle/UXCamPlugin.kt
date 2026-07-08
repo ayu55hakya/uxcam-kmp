@@ -109,7 +109,11 @@ class UXCamPlugin : Plugin<Project> {
     }
 }
 
-/** Adds `com.uxcam.kmp:uxcam` to the commonMain source set (no-op if the KMP plugin is absent). */
+/**
+ * Adds `com.uxcam.kmp:uxcam` to the commonMain source set (no-op if the KMP plugin is absent).
+ * Mirrors the pod path: a dependency the consumer already declared — in any source set, at any
+ * version — always wins over auto-install, so the plugin never fights their version choice.
+ */
 internal fun Project.installUXCamForKmp(commonMain: SourceSetAutoInstallExtension) {
     val kmpExtension = extensions.findByName(KOTLIN_EXTENSION_NAME)
     if (kmpExtension !is KotlinMultiplatformExtension) {
@@ -125,15 +129,37 @@ internal fun Project.installUXCamForKmp(commonMain: SourceSetAutoInstallExtensio
     }
 
     val version = commonMain.uxcamKmpVersion.get()
-    commonMainSourceSet.dependencies { api("$WRAPPER_GROUP:$WRAPPER_ARTIFACT:$version") }
+    if (hasDeclaredDependency(WRAPPER_GROUP, WRAPPER_ARTIFACT)) {
+        UXCamPlugin.logger.info(
+            "Consumer already declares $WRAPPER_GROUP:$WRAPPER_ARTIFACT — skipping wrapper auto-install."
+        )
+    } else {
+        commonMainSourceSet.dependencies { api("$WRAPPER_GROUP:$WRAPPER_ARTIFACT:$version") }
+    }
 
     // Compose consumers also get the Modifier.uxcamOcclude artifact; everyone else stays
     // Compose-free. Same detect-and-wire pattern as the CocoaPods/linker split.
     val hasCompose = COMPOSE_PLUGIN_IDS.any { plugins.hasPlugin(it) }
     if (hasCompose && commonMain.composeHelpers.get()) {
-        commonMainSourceSet.dependencies { api("$WRAPPER_GROUP:$COMPOSE_ARTIFACT:$version") }
+        if (hasDeclaredDependency(WRAPPER_GROUP, COMPOSE_ARTIFACT)) {
+            UXCamPlugin.logger.info(
+                "Consumer already declares $WRAPPER_GROUP:$COMPOSE_ARTIFACT — skipping compose auto-install."
+            )
+        } else {
+            commonMainSourceSet.dependencies { api("$WRAPPER_GROUP:$COMPOSE_ARTIFACT:$version") }
+        }
     }
 }
+
+/**
+ * True when the consumer already declares [group]:[name] in any dependency scope. Covers both
+ * external (`"com.uxcam.kmp:uxcam:..."`) and project (`projects.uxcam`) notation; only declared
+ * dependencies are inspected — nothing is resolved.
+ */
+private fun Project.hasDeclaredDependency(group: String, name: String): Boolean =
+    configurations.any { configuration ->
+        configuration.dependencies.any { it.group == group && it.name == name }
+    }
 
 /**
  * Adds `pod("UXCam")` to the Kotlin CocoaPods configuration, unless the consumer already declared
