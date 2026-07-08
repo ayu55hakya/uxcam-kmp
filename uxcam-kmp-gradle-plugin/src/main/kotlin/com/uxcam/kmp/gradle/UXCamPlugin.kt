@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.TestExecutable
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.slf4j.LoggerFactory
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 
 internal const val UXCAM_EXTENSION_NAME = "uxcamKmp"
 internal const val KOTLIN_EXTENSION_NAME = "kotlin"
@@ -102,7 +103,8 @@ internal fun Project.installUXCamForKmp(commonMain: SourceSetAutoInstallExtensio
         return
     }
 
-    val commonMainSourceSet = kmpExtension.sourceSets.find { it.name.contains("common") }
+    val commonMainSourceSet =
+                kmpExtension.sourceSets.findByName(KotlinSourceSet.COMMON_MAIN_SOURCE_SET_NAME)
     if (commonMainSourceSet == null) {
         UXCamPlugin.logger.info("No commonMain source set found — skipping UXCam wrapper installation.")
         return
