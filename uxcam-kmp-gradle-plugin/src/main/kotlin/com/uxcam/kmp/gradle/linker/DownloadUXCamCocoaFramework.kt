@@ -8,7 +8,11 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import java.io.File
+import java.io.IOException
 import java.net.URI
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+import java.security.DigestInputStream
 import java.security.MessageDigest
 import java.util.zip.ZipInputStream
 
@@ -43,31 +47,47 @@ abstract class DownloadUXCamCocoaFramework : DefaultTask() {
             return
         }
 
-        dest.deleteRecursively()
-        dest.mkdirs()
+        dest.parentFile.mkdirs()
+        // Download and extract next to dest, then atomically rename into place, so a
+        // concurrent build in another daemon never observes (or clobbers) a partial tree.
+        val zipFile = File.createTempFile("uxcam-cocoa-", ".zip", dest.parentFile)
+        val tmpDir = Files.createTempDirectory(dest.parentFile.toPath(), "${dest.name}-").toFile()
+        try {
+            val digest = MessageDigest.getInstance("SHA-256")
+            DigestInputStream(URI(zipUrl.get()).toURL().openStream(), digest).use { input ->
+                zipFile.outputStream().use { input.copyTo(it) }
+            }
+            val actual = digest.digest().joinToString("") { "%02x".format(it) }
+            if (actual != expected) {
+                throw GradleException(
+                    "UXCam Cocoa framework checksum mismatch for ${zipUrl.get()}.\n" +
+                            "  expected: $expected\n  actual:   $actual\n" +
+                            "If you overrode the Cocoa version, set the matching checksum or point " +
+                            "uxcamKmp { linker { frameworkPath.set(\"...\") } } at a local UXCam.xcframework."
+                )
+            }
 
-        val zipBytes = URI(zipUrl.get()).toURL().openStream().use { it.readBytes() }
+            zipFile.inputStream().buffered().use { unzip(it, tmpDir) }
+            if (!File(tmpDir, framework.name).isDirectory) {
+                throw GradleException(
+                    "Expected ${framework.name} in the downloaded archive but it was not found under " +
+                            "${dest.absolutePath}. The archive layout may have changed."
+                )
+            }
+            File(tmpDir, marker.name).writeText(zipUrl.get())
 
-        val actual = MessageDigest.getInstance("SHA-256").digest(zipBytes)
-            .joinToString("") { "%02x".format(it) }
-        if (actual != expected) {
-            throw GradleException(
-                "UXCam Cocoa framework checksum mismatch for ${zipUrl.get()}.\n" +
-                    "  expected: $expected\n  actual:   $actual\n" +
-                    "If you overrode the Cocoa version, set the matching checksum or point " +
-                    "uxcamKmp { linker { frameworkPath.set(\"...\") } } at a local UXCam.xcframework."
-            )
+            dest.deleteRecursively()
+            try {
+                Files.move(tmpDir.toPath(), dest.toPath(), StandardCopyOption.ATOMIC_MOVE)
+            } catch (e: IOException) {
+                // Lost the race to a concurrent build — accept its result if it's complete.
+                if (!(marker.exists() && framework.isDirectory)) throw e
+            }
+            logger.lifecycle("Resolved native UXCam Cocoa framework → ${framework.absolutePath}")
+        } finally {
+            zipFile.delete()
+            tmpDir.deleteRecursively()
         }
-
-        unzip(zipBytes.inputStream(), dest)
-        if (!framework.isDirectory) {
-            throw GradleException(
-                "Expected ${framework.name} in the downloaded archive but it was not found under " +
-                    "${dest.absolutePath}. The archive layout may have changed."
-            )
-        }
-        marker.writeText(zipUrl.get())
-        logger.lifecycle("Resolved native UXCam Cocoa framework → ${framework.absolutePath}")
     }
 
     private fun unzip(input: java.io.InputStream, dest: File) {
